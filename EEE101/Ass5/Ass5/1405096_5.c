@@ -109,7 +109,7 @@ Database databaseNew() {
 	Database db;
 	FILE* file;
 	char fileName[34];
-	printf("Please input filename of the database (witout suffix)");
+	printf("Please input filename of the database (witout suffix):");
 	rewind(stdin);
 	fgets(fileName, 30, stdin);
 	fileName[strlen(fileName) - 1] = 0;
@@ -121,7 +121,19 @@ Database databaseNew() {
 		return db;
 	}
 	file = fopen(fileName, "w+");
-	db.listStudent.numberID = 0;
+	strcat(db.listStudent.email, "");
+	strcat(db.listStudent.nameFamily, "");
+	strcat(db.listStudent.nameGiven, "");
+	db.listStudent.grade1 = -1;
+	db.listStudent.grade2 = -1;
+	db.listStudent.grade3 = -1;
+	db.listStudent.grade4 = -1;
+	db.listStudent.grade5 = -1;
+	db.listStudent.grade6 = -1;
+	db.listStudent.gradeAvg = -1;
+	db.listStudent.numberID = -1;
+	db.listStudent.stdFormer = NULL;
+	db.listStudent.stdLatter = NULL;
 	db.fileStudent = file;
 	return db;
 }
@@ -227,7 +239,8 @@ void quit() {
 Database databaseLoad(char filename[]) {
 	Student stuList = { "","",0,"",0,0,0,0,0,0,0,NULL,NULL };
 	Database db = { &stuList, NULL };
-	puts("* File loaded");
+	FILE* file = fopen(filename, "r+");
+
 	return db;
 }
 
@@ -422,7 +435,7 @@ void databaseSave(Database* db) {
 }
 
 void elementSave(Student* stu, FILE* file) {
-
+	fwrite(stu, sizeof(Student), 1, file);
 }
 
 int checkNum(char str[8], int length) {
@@ -454,7 +467,7 @@ void databasePrint(Database* db) {
 void elementPrint(Student* stu) {
 	printf(" Student %07d:\n", stu->numberID);
 	printf("  Name:                %s %s;\n", stu->nameGiven, stu->nameFamily);
-	printf("  Email:               %s", stu->email);
+	printf("  Email:               %s\n", stu->email);
 	printf("  Recent 6 grades:     %d; %d; %d; %d; %d; %d;\n", stu->grade1, stu->grade2, stu->grade3, stu->grade4, stu->grade5, stu->grade6);
 	printf("  Average of 6 grades: %f;\n", stu->gradeAvg);
 }
