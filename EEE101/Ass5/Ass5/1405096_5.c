@@ -32,27 +32,24 @@ Database databaseOpen();
 Database databaseLoad(char filename[]);
 Database databaseErrorExist(char filename[]);
 Database databaseErrorNotfound(char filename[]);
+void databaseSearchElement(Database* db);
 int databaseOperates(Database* db);
 void quit();
 void elementInsert(Student *elementDest, Student *elementToInsert);
-void listAdd(Student* index, Student* elementToAdd);
-Student* listGetPos(Student* index, int numberID);
+int listGetPos(Student* list, int numberID, Student** buffer);
 void databaseAddElement(Database* db);
-Student* inputStudent();
 void databaseSave(Database* db);
 int checkNum(char str[], int length);
 void databasePrint(Database* db);
 void elementPrint(Student* stu);
 void elementSave(Student* stu, FILE* file);
+int markInput();
 
 
 
 int main() {
-	char a[10];
 	int inputChoice, i = 0;
-	Student list = { "","",0,"",0,0,0,0,0,0,0,NULL,NULL };
 	Database db;
-	db.listStudent = list;
 	puts("Welcome to the student database!");
 	puts("Following choices are available:");
 	puts("1. Creat a new database;");
@@ -76,6 +73,7 @@ int main() {
 	while (i == 0) {
 		i = databaseOperates(&db);
 	}
+	databaseSave(&db);
 	fclose(db.fileStudent);
 	system("pause");
 }
@@ -108,33 +106,25 @@ int getChoice(int length) {
 Database databaseNew() {
 	Database db;
 	FILE* file;
+	Student list = { "","",0,"",0,0,0,0,0,0,0,NULL,NULL };
 	char fileName[34];
+	/*input filename*/
 	printf("Please input filename of the database (witout suffix):");
 	rewind(stdin);
 	fgets(fileName, 30, stdin);
 	fileName[strlen(fileName) - 1] = 0;
 	strcat(fileName, ".txt");
-	file = fopen(fileName, "r");
+	/*open file*/
+	file = fopen(fileName, "rb");
 	if (file != NULL) {
 		fclose(file);
-		db = databaseErrorExist(fileName);
-		return db;
+		return databaseErrorExist(fileName);
 	}
-	file = fopen(fileName, "w+");
-	strcat(db.listStudent.email, "");
-	strcat(db.listStudent.nameFamily, "");
-	strcat(db.listStudent.nameGiven, "");
-	db.listStudent.grade1 = -1;
-	db.listStudent.grade2 = -1;
-	db.listStudent.grade3 = -1;
-	db.listStudent.grade4 = -1;
-	db.listStudent.grade5 = -1;
-	db.listStudent.grade6 = -1;
-	db.listStudent.gradeAvg = -1;
-	db.listStudent.numberID = -1;
-	db.listStudent.stdFormer = NULL;
-	db.listStudent.stdLatter = NULL;
+	file = fopen(fileName, "wb+");
+	/*assign*/
 	db.fileStudent = file;
+	db.listStudent = list;
+	strcpy(db.listStudent.email, fileName);
 	return db;
 }
 
@@ -147,20 +137,19 @@ Database databaseOpen() {
 	fgets(fileName, 30, stdin);
 	fileName[strlen(fileName) - 1] = 0;
 	strcat(fileName, ".txt");
-	file = fopen(fileName, "r");
+	file = fopen(fileName, "rb");
 	if (file == NULL) {
-		fclose(file);
 		db = databaseErrorNotfound(fileName);
 		return db;
 	}
 	fclose(file);
-	file = fopen(fileName, "r");
-	db = databaseLoad(fileName);
-	return db;
+	file = fopen(fileName, "rb+");
+	return databaseLoad(fileName);
 }
 
 int databaseOperates(Database* db) {
 	int choice;
+	Student* buffer;
 	system("cls");
 	puts("Database is ready to use, following choices are available:");
 	puts("1. Add a student;");
@@ -175,7 +164,7 @@ int databaseOperates(Database* db) {
 		databaseAddElement(db);
 		break;
 	case 2:
-
+		databaseSearchElement(db);
 		break;
 	case 3:
 		databasePrint(db);
@@ -207,15 +196,16 @@ Database databaseErrorExist(char filename[]) {
 	switch (choice)
 	{
 	case 1:
-		db = databaseLoad(filename);
+		return databaseLoad(filename);
 		break;
 	case 2:
-		file = fopen(filename, "w+");
+		file = fopen(filename, "wb+");
 		db.fileStudent = file;
 		db.listStudent = student;
+		strcpy(db.listStudent.email, filename);
 		break;
 	case 3:
-		db = databaseNew();
+		return databaseNew();
 		break;
 	case 0:
 		quit();
@@ -238,9 +228,21 @@ void quit() {
 
 Database databaseLoad(char filename[]) {
 	Student stuList = { "","",0,"",0,0,0,0,0,0,0,NULL,NULL };
-	Database db = { &stuList, NULL };
-	FILE* file = fopen(filename, "r+");
-
+	FILE* file = fopen(filename, "rb+");
+	Database db;
+	db.fileStudent = file;
+	db.listStudent = stuList;
+	strcpy(db.listStudent.email, filename);
+	while (EOF != fgetc(file)) {
+		fseek(file, -1, SEEK_CUR);
+		Student* temp = (Student*)malloc(sizeof(Student));
+		Student* pos = NULL;
+		fread(temp, sizeof(Student), 1, file);
+		temp->stdFormer = NULL;
+		temp->stdLatter = NULL;
+		listGetPos(&(db.listStudent), temp->numberID, &pos);
+		elementInsert(pos, temp);
+	}
 	return db;
 }
 
@@ -259,12 +261,13 @@ Database databaseErrorNotfound(char filename[]) {
 	switch (choice)
 	{
 	case 1:
-		db = databaseOpen();
+		return databaseOpen();
 		break;
 	case 2:
-		file = fopen("filename", "w+");
+		file = fopen("filename", "wb+");
 		db.fileStudent = file;
 		db.listStudent = student;
+		strcpy(db.listStudent.email, filename);
 		break;
 	case 0:
 		quit();
@@ -292,35 +295,29 @@ void elementInsert(Student* elementDest, Student* elementToInsert) {
 	}
 }
 
-void listAdd(Student* index, Student* elementToAdd) {
-	elementInsert((listGetPos(index, elementToAdd->numberID)), elementToAdd);
-}
-
-Student* listGetPos(Student* index, int numberID) {
+int listGetPos(Student* list, int numberID, Student** buffer) {
 	Student *pIndex;
-	pIndex = index;
+	pIndex = list;
 	while (pIndex->numberID < numberID && pIndex->stdLatter != NULL) {
 		pIndex = pIndex->stdLatter;
 	}
 	if (pIndex->numberID == numberID) {
-		printf("Program error: duplicate ID number.");
-		quit();
+		*buffer = pIndex;
+		return -1;
 	}
 	else if (pIndex->numberID > numberID) {
 		pIndex = pIndex->stdFormer;
 	}
-	return pIndex;
+	*buffer = pIndex;
+	return 0;
 }
 
 void databaseAddElement(Database* db) {
-	system("cls");
-	listAdd(&(db->listStudent), inputStudent());
-	databaseSave(db);
-}
-
-Student* inputStudent() {
+	/*initialize*/
 	Student* stu = (Student*)malloc(sizeof(struct StudentStrt));
+	Student* buffer = NULL;
 	char numberID[9];
+	int duplicate = -1;
 	strcat(stu->email, "");
 	strcat(stu->nameFamily, "");
 	strcat(stu->nameGiven, "");
@@ -334,17 +331,8 @@ Student* inputStudent() {
 	stu->numberID = -1;
 	stu->stdFormer = NULL;
 	stu->stdLatter = NULL;
-	/*family name*/
+	system("cls");
 	puts("Please fill following information:");
-	printf("Family name:");
-	rewind(stdin);
-	fgets(stu->nameFamily, 20, stdin);
-	stu->nameFamily[strlen(stu->nameFamily) - 1] = 0;
-	/*given name*/
-	printf("Given name:");
-	rewind(stdin);
-	fgets(stu->nameGiven, 20, stdin);
-	stu->nameGiven[strlen(stu->nameGiven) - 1] = 0;
 	/*ID number*/
 	printf("Student ID:");
 	rewind(stdin);
@@ -356,77 +344,58 @@ Student* inputStudent() {
 		fgets(numberID, 9, stdin);
 	}
 	stu->numberID = atoi(numberID);
+	/*check if duplicate and add*/
+	duplicate = listGetPos(&(db->listStudent), stu->numberID, &buffer);
+	while (duplicate == -1) {
+		puts("Duplicate ID number, try again");
+		printf("Student ID:");
+		rewind(stdin);
+		fgets(numberID, 9, stdin);
+		while (checkNum(numberID, 7) != 1) {
+			puts("Incorrect format, ID number should be 7 numbers.");
+			printf("Student ID:");
+			rewind(stdin);
+			fgets(numberID, 9, stdin);
+		}
+		stu->numberID = atoi(numberID);
+		duplicate = listGetPos(&(db->listStudent), stu->numberID, &buffer);
+	}
+	/*family name*/
+	printf("Family name:");
+	rewind(stdin);
+	fgets(stu->nameFamily, 20, stdin);
+	stu->nameFamily[strlen(stu->nameFamily) - 1] = 0;
+	/*given name*/
+	printf("Given name:");
+	rewind(stdin);
+	fgets(stu->nameGiven, 20, stdin);
+	stu->nameGiven[strlen(stu->nameGiven) - 1] = 0;
 	/*email*/
 	printf("Email address:");
 	rewind(stdin);
 	fgets(stu->email, 9, stdin);
 	stu->email[strlen(stu->email) - 1] = 0;
-	/*1st mark*/
+	/*marks*/
 	printf("1st mark:");
-	rewind(stdin);
-	scanf("%d", &stu->grade1);
-	while (stu->grade1 < 0 || stu->grade1>100) {
-		puts("Incorrect format, the mark should be integer 0 - 100.");
-		printf("1st mark:");
-		rewind(stdin);
-		scanf("%d", &stu->grade1);
-	}
-	/*2nd mark*/
+	stu->grade1 = markInput();
 	printf("2nd mark:");
-	rewind(stdin);
-	scanf("%d", &stu->grade2);
-	while (stu->grade2 < 0 || stu->grade2>100) {
-		puts("Incorrect format, the mark should be integer 0 - 100.");
-		printf("2nd mark:");
-		rewind(stdin);
-		scanf("%d", &stu->grade2);
-	}
-	/*3rd mark*/
+	stu->grade2 = markInput();
 	printf("3rd mark:");
-	rewind(stdin);
-	scanf("%d", &stu->grade3);
-	while (stu->grade3 < 0 || stu->grade3>100) {
-		puts("Incorrect format, the mark should be integer 0 - 100.");
-		printf("3rd mark:");
-		rewind(stdin);
-		scanf("%d", &stu->grade3);
-	}
-	/*4st mark*/
+	stu->grade3 = markInput();
 	printf("4st mark:");
-	rewind(stdin);
-	scanf("%d", &stu->grade4);
-	while (stu->grade4 < 0 || stu->grade4>100) {
-		puts("Incorrect format, the mark should be integer 0 - 100.");
-		printf("4st mark:");
-		rewind(stdin);
-		scanf("%d", &stu->grade4);
-	}
-	/*5st mark*/
+	stu->grade4 = markInput();
 	printf("5st mark:");
-	rewind(stdin);
-	scanf("%d", &stu->grade5);
-	while (stu->grade5 < 0 || stu->grade5>100) {
-		puts("Incorrect format, the mark should be integer 0 - 100.");
-		printf("5st mark:");
-		rewind(stdin);
-		scanf("%d", &stu->grade5);
-	}
-	/*6st mark*/
+	stu->grade5 = markInput();
 	printf("6st mark:");
-	rewind(stdin);
-	scanf("%d", &stu->grade6);
-	while (stu->grade6 < 0 || stu->grade6>100) {
-		puts("Incorrect format, the mark should be integer 0 - 100.");
-		printf("6st mark:");
-		rewind(stdin);
-		scanf("%d", &stu->grade6);
-	}
+	stu->grade6 = markInput();
 	stu->gradeAvg = (stu->grade1 + stu->grade2 + stu->grade3 + stu->grade4 + stu->grade5 + stu->grade6) / 6;
-	return stu;
+	elementInsert(buffer, stu);
 }
 
 void databaseSave(Database* db) {
 	Student* stu;
+	fclose(db->fileStudent);
+	fopen(db->listStudent.email, "wb+");
 	stu = &(db->listStudent);
 	while (stu->stdLatter != NULL) {
 		stu = stu->stdLatter;
@@ -438,7 +407,7 @@ void elementSave(Student* stu, FILE* file) {
 	fwrite(stu, sizeof(Student), 1, file);
 }
 
-int checkNum(char str[8], int length) {
+int checkNum(char str[], int length) {
 	int i;
 	for (i = 0; i < length; i++) {
 		if ((str[i] - '0') > 10 || (str[i] - '0') < 0) {
@@ -459,8 +428,9 @@ void databasePrint(Database* db) {
 	while (stu->stdLatter != NULL) {
 		stu = stu->stdLatter;
 		elementPrint(stu);
+		puts("");
 	}
-	puts("\nFinished.");
+	printf("Finished. Press enter to continue.");
 	getchar();
 }
 
@@ -469,5 +439,44 @@ void elementPrint(Student* stu) {
 	printf("  Name:                %s %s;\n", stu->nameGiven, stu->nameFamily);
 	printf("  Email:               %s\n", stu->email);
 	printf("  Recent 6 grades:     %d; %d; %d; %d; %d; %d;\n", stu->grade1, stu->grade2, stu->grade3, stu->grade4, stu->grade5, stu->grade6);
-	printf("  Average of 6 grades: %f;\n", stu->gradeAvg);
+	printf("  Average of 6 grades: %.2f;\n", stu->gradeAvg);
+}
+
+void databaseSearchElement(Database* db) {
+	Student* stu = NULL;
+	int numberIDIn;
+	char numberIDCh[9];
+	system("cls");
+	printf("Enter the ID number of the student to search:");
+	rewind(stdin);
+	fgets(numberIDCh, 9, stdin);
+	while (checkNum(numberIDCh, 7) != 1) {
+		puts("Incorrect format, ID number should be 7 numbers.");
+		printf("Try Again:");
+		rewind(stdin);
+		fgets(numberIDCh, 9, stdin);
+	}
+	numberIDIn = atoi(numberIDCh);
+	if (-1 == listGetPos(&(db->listStudent), numberIDIn, &stu)) {
+		puts("");
+		elementPrint(stu);
+	}
+	else {
+		puts("\n Student not found.\n");
+	}
+	printf("\nPress enter to contimue.");
+	getchar();
+}
+
+int markInput() {
+	int i;
+	rewind(stdin);
+	scanf("%d", &i);
+	while (i < 0 || i > 100) {
+		puts("Incorrect format, the mark should be integer 0 - 100.");
+		printf("Try again:");
+		rewind(stdin);
+		scanf("%d", &i);
+	}
+	return i;
 }
