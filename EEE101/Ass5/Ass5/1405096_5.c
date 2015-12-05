@@ -229,12 +229,15 @@ Database databaseErrorExist(char filename[]) {
 }
 
 void quit() {
-	system("cls");
-	puts("=======================================================");
-	puts("\tYou are leaving the system");
-	puts("\tHave fun with the database!");
-	puts("=======================================================");
-	Sleep(1000);
+	int t;
+	for (t = 3; t != 0; t--) {
+		system("cls");
+		puts("=======================================================");
+		printf("\r\tQuit in %d seconds.\n", t);
+		puts("\tHave fun with the database!");
+		puts("=======================================================");
+		Sleep(1000);
+	}
 	exit(0);
 }
 
