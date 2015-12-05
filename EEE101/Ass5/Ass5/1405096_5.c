@@ -43,21 +43,21 @@ void databaseSave(Database* db);
 int checkNum(char str[], int length);
 void databasePrint(Database* db);
 void elementPrint(Student* stu);
-void elementSave(Student* stu, FILE* file);
 Student* elementNew();
 int markInput();
-
-
 
 int main() {
 	int inputChoice, i = 0;
 	Database db;
-	puts("Welcome to the student database!");
-	puts("Following choices are available:");
-	puts("1. Creat a new database;");
-	puts("2. Load an exist database;");
-	puts("0. Quit");
-	printf("Please choose one action by entering the number:");
+	puts("=======================================================");
+	puts("\tWelcome to the student database!");
+	puts("\tFollowing choices are available:");
+	puts("=======================================================");
+	puts("\t1. Creat a new database;");
+	puts("\t2. Load an exist database;");
+	puts("\t0. Quit");
+	puts("=======================================================");
+	printf("Please choose one action by entering the number: ");
 	inputChoice = getChoice(2);
 	switch (inputChoice) {
 	case 1:
@@ -112,7 +112,7 @@ Database databaseNew() {
 	Student* list = elementNew();
 	char fileName[34];
 	/*input filename*/
-	printf("Please input filename of the database (witout suffix):");
+	printf("Please input filename of the database (witout suffix): ");
 	rewind(stdin);
 	fgets(fileName, 30, stdin);
 	fileName[strlen(fileName) - 1] = 0;
@@ -135,7 +135,7 @@ Database databaseOpen() {
 	Database db;
 	FILE* file;
 	char fileName[34];
-	printf("Please input filename of the database (witout suffix)");
+	printf("Please input filename of the database (witout suffix): ");
 	rewind(stdin);
 	fgets(fileName, 30, stdin);
 	fileName[strlen(fileName) - 1] = 0;
@@ -154,11 +154,14 @@ int databaseOperates(Database* db) {
 	int choice;
 	Student* buffer;
 	system("cls");
-	puts("Database is ready to use, following choices are available:");
-	puts("1. Add a student;");
-	puts("2. Search for studets's information;");
-	puts("3. Sort and print database;");
-	puts("0. Quit.");
+	puts("=======================================================");
+	puts("\tDatabase is ready to use,\n\tfollowing choices are available: ");
+	puts("=======================================================");
+	puts("\t1. Add a student;");
+	puts("\t2. Search for studets's information;");
+	puts("\t3. Sort and print database;");
+	puts("\t0. Quit.");
+	puts("=======================================================");
 	printf("Please choose one action:");
 	choice = getChoice(3);
 	switch (choice)
@@ -173,7 +176,8 @@ int databaseOperates(Database* db) {
 		databasePrint(db);
 		break;
 	case 0:
-		return 1;
+		databaseSave(db);
+		quit();
 		break;
 	default:
 		puts("Program error: command not found;");
@@ -189,12 +193,15 @@ Database databaseErrorExist(char filename[]) {
 	Student* student = elementNew();
 	FILE* file;
 	system("cls");
-	puts("File already exist, you have following actions available:");
-	puts("1. Open the file;");
-	puts("2. Clear the content and open the file;");
-	puts("3. Creat another file;");
-	puts("0. Quit.");
-	printf("Please choose one action:");
+	puts("=======================================================");
+	puts("File already exist,\n\tyou have following actions available:");
+	puts("=======================================================");
+	puts("\t1. Open the file;");
+	puts("\t2. Clear the content and open the file;");
+	puts("\t3. Creat another file;");
+	puts("\t0. Quit.");
+	puts("=======================================================");
+	printf("Please choose one action: ");
 	choice = getChoice(3);
 	switch (choice)
 	{
@@ -223,8 +230,10 @@ Database databaseErrorExist(char filename[]) {
 
 void quit() {
 	system("cls");
-	puts("You are leaving the system");
-	puts("Have fun with the database!");
+	puts("=======================================================");
+	puts("\tYou are leaving the system");
+	puts("\tHave fun with the database!");
+	puts("=======================================================");
 	Sleep(1000);
 	exit(0);
 }
@@ -255,11 +264,14 @@ Database databaseErrorNotfound(char filename[]) {
 	Student* student = elementNew();
 	FILE* file;
 	system("cls");
-	puts("File is not found, you have following actions available:");
+	puts("=======================================================");
+	puts("\tFile is not found,\n\tyou have following actions available:");
+	puts("=======================================================");
 	puts("1. Choose another file to open;");
 	puts("2. Creat this file;");
 	puts("0. Quit.");
-	printf("Please choose one action:");
+	puts("=======================================================");
+	printf("Please choose one action: ");
 	choice = getChoice(2);
 	switch (choice)
 	{
@@ -322,14 +334,16 @@ void databaseAddElement(Database* db) {
 	char numberID[9];
 	int duplicate = -1;
 	system("cls");
-	puts("Please fill following information:");
+	puts("=======================================================");
+	puts("\tPlease fill following information.");
+	puts("=======================================================");
 	/*ID number*/
 	printf("Student ID:");
 	rewind(stdin);
 	fgets(numberID, 9, stdin);
 	while (checkNum(numberID, 7) != 1) {
 		puts("Incorrect format, ID number should be 7 numbers.");
-		printf("Student ID:");
+		printf("Student ID: ");
 		rewind(stdin);
 		fgets(numberID, 9, stdin);
 	}
@@ -337,13 +351,13 @@ void databaseAddElement(Database* db) {
 	/*check if duplicate and add*/
 	duplicate = listGetPos(db->listStudent, stu->numberID, &buffer);
 	while (duplicate == -1) {
-		puts("Duplicate ID number, try again");
-		printf("Student ID:");
+		puts("Duplicate ID number, try again.");
+		printf("Student ID: ");
 		rewind(stdin);
 		fgets(numberID, 9, stdin);
 		while (checkNum(numberID, 7) != 1) {
 			puts("Incorrect format, ID number should be 7 numbers.");
-			printf("Student ID:");
+			printf("Student ID: ");
 			rewind(stdin);
 			fgets(numberID, 9, stdin);
 		}
@@ -351,32 +365,32 @@ void databaseAddElement(Database* db) {
 		duplicate = listGetPos(db->listStudent, stu->numberID, &buffer);
 	}
 	/*family name*/
-	printf("Family name:");
+	printf("Family name: ");
 	rewind(stdin);
 	fgets(stu->nameFamily, 20, stdin);
 	stu->nameFamily[strlen(stu->nameFamily) - 1] = 0;
 	/*given name*/
-	printf("Given name:");
+	printf("Given name: ");
 	rewind(stdin);
 	fgets(stu->nameGiven, 20, stdin);
 	stu->nameGiven[strlen(stu->nameGiven) - 1] = 0;
 	/*email*/
-	printf("Email address:");
+	printf("Email address: ");
 	rewind(stdin);
 	fgets(stu->email, 9, stdin);
 	stu->email[strlen(stu->email) - 1] = 0;
 	/*marks*/
-	printf("1st mark:");
+	printf("1st mark: ");
 	stu->grade1 = markInput();
-	printf("2nd mark:");
+	printf("2nd mark: ");
 	stu->grade2 = markInput();
-	printf("3rd mark:");
+	printf("3rd mark: ");
 	stu->grade3 = markInput();
-	printf("4st mark:");
+	printf("4st mark: ");
 	stu->grade4 = markInput();
-	printf("5st mark:");
+	printf("5st mark: ");
 	stu->grade5 = markInput();
-	printf("6st mark:");
+	printf("6st mark: ");
 	stu->grade6 = markInput();
 	stu->gradeAvg = (stu->grade1 + stu->grade2 + stu->grade3 + stu->grade4 + stu->grade5 + stu->grade6) / 6;
 	elementInsert(buffer, stu);
@@ -389,12 +403,8 @@ void databaseSave(Database* db) {
 	stu = db->listStudent;
 	while (stu->stdLatter != NULL) {
 		stu = stu->stdLatter;
-		elementSave(stu, db->fileStudent);
+		fwrite(stu, sizeof(Student), 1, db->fileStudent);
 	}
-}
-
-void elementSave(Student* stu, FILE* file) {
-	fwrite(stu, sizeof(Student), 1, file);
 }
 
 int checkNum(char str[], int length) {
@@ -413,23 +423,30 @@ int checkNum(char str[], int length) {
 void databasePrint(Database* db) {
 	Student* stu;
 	system("cls");
-	puts("The database has following records:\n");
+	puts("=======================================================");
+	puts("\tThe database has following records:");
+	puts("=======================================================");
 	stu = db->listStudent;
-	while (stu->stdLatter != NULL) {
+	if (stu->stdLatter != NULL) {
 		stu = stu->stdLatter;
 		elementPrint(stu);
-		puts("");
 	}
+	while (stu->stdLatter != NULL) {
+		puts("\t---------------------------------------------");
+		stu = stu->stdLatter;
+		elementPrint(stu);
+	}
+	puts("=======================================================");
 	printf("Finished. Press enter to continue.");
 	getchar();
 }
 
 void elementPrint(Student* stu) {
-	printf(" Student %07d:\n", stu->numberID);
-	printf("  Name:                %s %s;\n", stu->nameGiven, stu->nameFamily);
-	printf("  Email:               %s\n", stu->email);
-	printf("  Recent 6 grades:     %d; %d; %d; %d; %d; %d;\n", stu->grade1, stu->grade2, stu->grade3, stu->grade4, stu->grade5, stu->grade6);
-	printf("  Average of 6 grades: %.2f;\n", stu->gradeAvg);
+	printf("\tStudent %07d:\n", stu->numberID);
+	printf("\t   Name:                %s %s;\n", stu->nameGiven, stu->nameFamily);
+	printf("\t   Email:               %s\n", stu->email);
+	printf("\t   Recent 6 grades:     %d; %d; %d; %d; %d; %d;\n", stu->grade1, stu->grade2, stu->grade3, stu->grade4, stu->grade5, stu->grade6);
+	printf("\t   Average of 6 grades: %.2f;\n", stu->gradeAvg);
 }
 
 void databaseSearchElement(Database* db) {
@@ -437,24 +454,32 @@ void databaseSearchElement(Database* db) {
 	int numberIDIn;
 	char numberIDCh[9];
 	system("cls");
-	printf("Enter the ID number of the student to search:");
+	puts("=======================================================");
+	puts("\t Enter student information to start.");
+	puts("=======================================================");
+	printf("Enter the ID number of the student to search: ");
 	rewind(stdin);
 	fgets(numberIDCh, 9, stdin);
 	while (checkNum(numberIDCh, 7) != 1) {
 		puts("Incorrect format, ID number should be 7 numbers.");
-		printf("Try Again:");
+		printf("Try Again: ");
 		rewind(stdin);
 		fgets(numberIDCh, 9, stdin);
 	}
 	numberIDIn = atoi(numberIDCh);
 	if (-1 == listGetPos(db->listStudent, numberIDIn, &stu)) {
-		puts("");
+		puts("=======================================================");
+		puts("\tStudent found:");
+		puts("\t---------------------------------------------");
 		elementPrint(stu);
+		puts("=======================================================");
 	}
 	else {
-		puts("\n Student not found.\n");
+		puts("=======================================================");
+		puts("\tSorry. Student not found.");
+		puts("=======================================================");
 	}
-	printf("\nPress enter to contimue.");
+	printf("Press enter to contimue.");
 	getchar();
 }
 
