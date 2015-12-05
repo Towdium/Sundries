@@ -21,7 +21,7 @@ typedef struct StudentStrt {
 }Student;
 
 typedef struct DatabaseStrct {
-	Student listStudent;
+	Student* listStudent;
 	FILE* fileStudent;
 }Database;
 
@@ -37,12 +37,14 @@ int databaseOperates(Database* db);
 void quit();
 void elementInsert(Student *elementDest, Student *elementToInsert);
 int listGetPos(Student* list, int numberID, Student** buffer);
+void listFree(Student* list);
 void databaseAddElement(Database* db);
 void databaseSave(Database* db);
 int checkNum(char str[], int length);
 void databasePrint(Database* db);
 void elementPrint(Student* stu);
 void elementSave(Student* stu, FILE* file);
+Student* elementNew();
 int markInput();
 
 
@@ -65,7 +67,7 @@ int main() {
 		db = databaseOpen();
 		break;
 	case 0:
-		exit(0);
+		quit();
 		break;
 	default:
 		break;
@@ -75,6 +77,7 @@ int main() {
 	}
 	databaseSave(&db);
 	fclose(db.fileStudent);
+	listFree(db.listStudent);
 	system("pause");
 }
 
@@ -106,7 +109,7 @@ int getChoice(int length) {
 Database databaseNew() {
 	Database db;
 	FILE* file;
-	Student list = { "","",0,"",0,0,0,0,0,0,0,NULL,NULL };
+	Student* list = elementNew();
 	char fileName[34];
 	/*input filename*/
 	printf("Please input filename of the database (witout suffix):");
@@ -124,7 +127,7 @@ Database databaseNew() {
 	/*assign*/
 	db.fileStudent = file;
 	db.listStudent = list;
-	strcpy(db.listStudent.email, fileName);
+	strcpy(db.listStudent->email, fileName);
 	return db;
 }
 
@@ -183,7 +186,7 @@ int databaseOperates(Database* db) {
 Database databaseErrorExist(char filename[]) {
 	int choice;
 	Database db;
-	Student student = { "","",0,"",0,0,0,0,0,0,0,NULL,NULL };
+	Student* student = elementNew();
 	FILE* file;
 	system("cls");
 	puts("File already exist, you have following actions available:");
@@ -202,7 +205,7 @@ Database databaseErrorExist(char filename[]) {
 		file = fopen(filename, "wb+");
 		db.fileStudent = file;
 		db.listStudent = student;
-		strcpy(db.listStudent.email, filename);
+		strcpy((db.listStudent)->email, filename);
 		break;
 	case 3:
 		return databaseNew();
@@ -227,12 +230,12 @@ void quit() {
 }
 
 Database databaseLoad(char filename[]) {
-	Student stuList = { "","",0,"",0,0,0,0,0,0,0,NULL,NULL };
+	Student* stuList = elementNew();
 	FILE* file = fopen(filename, "rb+");
 	Database db;
 	db.fileStudent = file;
 	db.listStudent = stuList;
-	strcpy(db.listStudent.email, filename);
+	strcpy(db.listStudent->email, filename);
 	while (EOF != fgetc(file)) {
 		fseek(file, -1, SEEK_CUR);
 		Student* temp = (Student*)malloc(sizeof(Student));
@@ -240,7 +243,7 @@ Database databaseLoad(char filename[]) {
 		fread(temp, sizeof(Student), 1, file);
 		temp->stdFormer = NULL;
 		temp->stdLatter = NULL;
-		listGetPos(&(db.listStudent), temp->numberID, &pos);
+		listGetPos(db.listStudent, temp->numberID, &pos);
 		elementInsert(pos, temp);
 	}
 	return db;
@@ -249,7 +252,7 @@ Database databaseLoad(char filename[]) {
 Database databaseErrorNotfound(char filename[]) {
 	int choice;
 	Database db;
-	Student student = { "","",0,"",0,0,0,0,0,0,0,NULL,NULL };
+	Student* student = elementNew();
 	FILE* file;
 	system("cls");
 	puts("File is not found, you have following actions available:");
@@ -264,10 +267,10 @@ Database databaseErrorNotfound(char filename[]) {
 		return databaseOpen();
 		break;
 	case 2:
-		file = fopen("filename", "wb+");
+		file = fopen(filename, "wb+");
 		db.fileStudent = file;
 		db.listStudent = student;
-		strcpy(db.listStudent.email, filename);
+		strcpy(db.listStudent->email, filename);
 		break;
 	case 0:
 		quit();
@@ -314,23 +317,10 @@ int listGetPos(Student* list, int numberID, Student** buffer) {
 
 void databaseAddElement(Database* db) {
 	/*initialize*/
-	Student* stu = (Student*)malloc(sizeof(struct StudentStrt));
+	Student* stu = elementNew();
 	Student* buffer = NULL;
 	char numberID[9];
 	int duplicate = -1;
-	strcat(stu->email, "");
-	strcat(stu->nameFamily, "");
-	strcat(stu->nameGiven, "");
-	stu->grade1 = -1;
-	stu->grade2 = -1;
-	stu->grade3 = -1;
-	stu->grade4 = -1;
-	stu->grade5 = -1;
-	stu->grade6 = -1;
-	stu->gradeAvg = -1;
-	stu->numberID = -1;
-	stu->stdFormer = NULL;
-	stu->stdLatter = NULL;
 	system("cls");
 	puts("Please fill following information:");
 	/*ID number*/
@@ -345,7 +335,7 @@ void databaseAddElement(Database* db) {
 	}
 	stu->numberID = atoi(numberID);
 	/*check if duplicate and add*/
-	duplicate = listGetPos(&(db->listStudent), stu->numberID, &buffer);
+	duplicate = listGetPos(db->listStudent, stu->numberID, &buffer);
 	while (duplicate == -1) {
 		puts("Duplicate ID number, try again");
 		printf("Student ID:");
@@ -358,7 +348,7 @@ void databaseAddElement(Database* db) {
 			fgets(numberID, 9, stdin);
 		}
 		stu->numberID = atoi(numberID);
-		duplicate = listGetPos(&(db->listStudent), stu->numberID, &buffer);
+		duplicate = listGetPos(db->listStudent, stu->numberID, &buffer);
 	}
 	/*family name*/
 	printf("Family name:");
@@ -395,8 +385,8 @@ void databaseAddElement(Database* db) {
 void databaseSave(Database* db) {
 	Student* stu;
 	fclose(db->fileStudent);
-	fopen(db->listStudent.email, "wb+");
-	stu = &(db->listStudent);
+	fopen(db->listStudent->email, "wb+");
+	stu = db->listStudent;
 	while (stu->stdLatter != NULL) {
 		stu = stu->stdLatter;
 		elementSave(stu, db->fileStudent);
@@ -424,7 +414,7 @@ void databasePrint(Database* db) {
 	Student* stu;
 	system("cls");
 	puts("The database has following records:\n");
-	stu = &(db->listStudent);
+	stu = db->listStudent;
 	while (stu->stdLatter != NULL) {
 		stu = stu->stdLatter;
 		elementPrint(stu);
@@ -457,7 +447,7 @@ void databaseSearchElement(Database* db) {
 		fgets(numberIDCh, 9, stdin);
 	}
 	numberIDIn = atoi(numberIDCh);
-	if (-1 == listGetPos(&(db->listStudent), numberIDIn, &stu)) {
+	if (-1 == listGetPos(db->listStudent, numberIDIn, &stu)) {
 		puts("");
 		elementPrint(stu);
 	}
@@ -479,4 +469,34 @@ int markInput() {
 		scanf("%d", &i);
 	}
 	return i;
+}
+
+void listFree(Student* list) {
+	Student *temp;
+	temp = list;
+	while ( temp->stdLatter != NULL) {
+		temp = temp->stdLatter;
+	}
+	while (temp->stdFormer != NULL) {
+		temp = temp->stdFormer;
+		free(temp->stdLatter);
+	}
+}
+
+Student* elementNew() {
+	Student* stu = (Student*)malloc(sizeof(struct StudentStrt));
+	strcat(stu->email, "");
+	strcat(stu->nameFamily, "");
+	strcat(stu->nameGiven, "");
+	stu->grade1 = 0;
+	stu->grade2 = 0;
+	stu->grade3 = 0;
+	stu->grade4 = 0;
+	stu->grade5 = 0;
+	stu->grade6 = 0;
+	stu->gradeAvg = 0;
+	stu->numberID = 0;
+	stu->stdFormer = NULL;
+	stu->stdLatter = NULL;
+	return stu;
 }
