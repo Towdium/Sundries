@@ -23,7 +23,7 @@
 	characters. The ID number is set to be 7 numbers intendedly.
 @Remarks:
 	This program save all students in linked list, the first element
-	of which is empty and this string email is used to record the opend
+	of which is empty and this strying email is used to record the opend
 	filename for possible usage. In addition, the list is kept sorted
 	by ID number everytime the program runs. This will provide convenience
 	when sorting and can simplify the operation when sorting the list.
@@ -90,7 +90,7 @@ input:
 output:
 	int=0 if terminated normally
 function:
-	Ask the user whether to open or creat a database.
+	Ask the user whether to open or create a database.
 	Then call functions to read or initialize the data.
 	Then call functions to provide operations
 *******************************************************/
@@ -104,7 +104,7 @@ int main() {
 		puts("\tWelcome to the student database!");
 		puts("\tFollowing choices are available:");
 		puts("=======================================================");
-		puts("\t1. Creat a new database;");
+		puts("\t1. Create a new database;");
 		puts("\t2. Load an exist database;");
 		puts("\t0. Quit");
 		puts("=======================================================");
@@ -184,9 +184,9 @@ output:
 	Database: the generated database
 function:
 	Ask the user to enter a filename 
-	and creat a new database.
+	and create a new database.
 	When there is already one file with this name,
-	call fcunction to deal with it.
+	call function to deal with it.
 *******************************************************/
 Database databaseNew() {
 	Database db;
@@ -314,7 +314,7 @@ output:
 	Database: database generated
 function:
 	This function is created to deal with situation
-	when user is tring to creat a new file with the
+	when user is trying to create a new file with the
 	filename already occupied.
 	The function provides a list of operations available
 	including open the file, clear the content then open
@@ -333,7 +333,7 @@ Database databaseErrorExist(char filename[]) {
 	puts("=======================================================");
 	puts("\t1. Open the file;");
 	puts("\t2. Clear the content and open the file;");
-	puts("\t3. Creat another file;");
+	puts("\t3. create another file;");
 	puts("\t0. Quit.");
 	puts("=======================================================");
 	printf("Please choose one action: ");
@@ -376,7 +376,7 @@ function:
 remarks:
 	This function will not do any of preparation
 	before quitting. All the procedure should be
-	done before calling this function inclusing
+	done before calling this function including
 	freeing memory and save file.
 *******************************************************/
 void quit() {
@@ -436,10 +436,10 @@ output:
 	Database: database generated
 function:
 	This function is created to deal with situation
-	when user is tring to load the file when there is
+	when user is trying to load the file when there is
 	no such file.
 	The function provides a list of operations available
-	including choose another file and creat this file.
+	including choose another file and create this file.
 	Call different functions for operations.
 *******************************************************/
 Database databaseErrorNotfound(char filename[]) {
@@ -453,7 +453,7 @@ Database databaseErrorNotfound(char filename[]) {
 	puts("\tFile is not found,\n\tyou have following actions available:");
 	puts("=======================================================");
 	puts("1. Choose another file to open;");
-	puts("2. Creat this file;");
+	puts("2. Create this file;");
 	puts("0. Quit.");
 	puts("=======================================================");
 	printf("Please choose one action: ");
@@ -530,7 +530,7 @@ function:
 	ID number smaller than the given number to the pointer
 	and return 0;
 remarks:
-	The return value seems a little wierd because the
+	The return value seems a little weird because the
 	function of this functions has been changed, but it
 	works at this stage.
 *******************************************************/
@@ -617,7 +617,7 @@ void databaseAddElement(Database* db) {
 	/*email*/
 	printf("Email address: ");
 	rewind(stdin);
-	fgets(stu->email, 9, stdin);
+	fgets(stu->email, 40, stdin);
 	stu->email[strlen(stu->email) - 1] = 0;
 	/*marks*/
 	printf("1st mark: ");
@@ -666,7 +666,7 @@ void databaseSave(Database* db) {
 name:
 	checkNum
 input:
-	char str[]: the string to check 
+	char str[]: the strying to check 
 	int length: the required length of the number
 output:
 	int: 1 when meets require, 0 when not
@@ -878,7 +878,7 @@ Student* elementNew() {
 	stu->grade5 = 0;
 	stu->grade6 = 0;
 	stu->gradeAvg = 0;
-	stu->numberID = 0;
+	stu->numberID = -1;
 	stu->stdFormer = NULL;
 	stu->stdLatter = NULL;
 	return stu;
