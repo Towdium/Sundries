@@ -162,7 +162,7 @@ int getChoice(int length) {
 	/*ask to input again and check*/
 	while (inputValid == 0) {
 		inputValid = 1;
-		printf("Invalid input, please try again:");
+		printf("Invalid input, please try again: ");
 		rewind(stdin);
 		scanf("%d", &inputChoice);
 		if (inputChoice<0 || inputChoice>length) {
@@ -198,7 +198,7 @@ Database databaseNew() {
 	rewind(stdin);
 	fgets(fileName, 30, stdin);
 	fileName[strlen(fileName) - 1] = 0;
-	strcat(fileName, ".txt");
+	strcat(fileName, ".db");
 	/*check file exist*/
 	file = fopen(fileName, "rb");
 	if (file != NULL) {
@@ -236,7 +236,7 @@ Database databaseOpen() {
 	rewind(stdin);
 	fgets(fileName, 30, stdin);
 	fileName[strlen(fileName) - 1] = 0;
-	strcat(fileName, ".txt");
+	strcat(fileName, ".db");
 	/*check file exist*/
 	file = fopen(fileName, "rb");
 	if (file == NULL) {
@@ -274,7 +274,7 @@ int databaseOperates(Database* db) {
 	puts("\t4. Return to main menu;");
 	puts("\t0. Quit.");
 	puts("=======================================================");
-	printf("Please choose one action:");
+	printf("Please choose one action: ");
 	choice = getChoice(4);
 	switch (choice)
 	{
@@ -576,7 +576,7 @@ void databaseAddElement(Database* db) {
 	puts("\tPlease fill following information.");
 	puts("=======================================================");
 	/*ID number*/
-	printf("Student ID:");
+	printf("Student ID: ");
 	rewind(stdin);
 	fgets(numberID, 9, stdin);
 	while (checkNum(numberID, 7) != 1) {
@@ -724,6 +724,7 @@ void databasePrint(Database* db) {
 	}
 	puts("=======================================================");
 	printf("Finished. Press enter to continue.");
+	rewind(stdin);
 	getchar();
 }
 
@@ -792,6 +793,7 @@ void databaseSearchElement(Database* db) {
 		puts("=======================================================");
 	}
 	printf("Press enter to contimue.");
+	rewind(stdin);
 	getchar();
 }
 
@@ -819,7 +821,7 @@ int markInput() {
 	/*check format*/
 	while (i < 0 || i > 100) {
 		puts("Incorrect format, the mark should be integer 0 - 100.");
-		printf("Try again:");
+		printf("Try again: ");
 		rewind(stdin);
 		scanf("%d", &i);
 	}
