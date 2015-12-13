@@ -18,8 +18,5 @@
     <ClCompile Include="database.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="database_interface.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

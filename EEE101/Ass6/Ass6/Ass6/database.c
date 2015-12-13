@@ -1,30 +1,31 @@
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <time.h>
 
 typedef struct Database {
 	FILE* dbFile;
-	Cos* cosList;
+	struct Costomer* cosList;
 } Db;
 
 typedef struct Costomer {
-	Acc* accList;
+	struct Account* accList;
 	char name[30];
 	char address[100];
 	char telephone[20];
 	char ID[20];
-	SORec* SORecList;
-	OPRec* OPRecList;
-	Cos* CosLast;
-	Cos* CosNext;
+	struct Costomer* CosLast;
+	struct Costomer* CosNext;
 } Cos;
 
 typedef struct Account{
 	long accountNumber;
 	int PIN;
 	int state;/*1 when active, 0 when freezed*/
-	SORec* SORecList;
-	OPRec* OPRecList;
-	Acc* AccLast;
-	Acc* AccNext;
+	struct StandOrderRecord* SORecList;
+	struct OperationRecord* OPRecList;
+	struct Account* AccLast;
+	struct Account* AccNext;
 } Acc;
 
 /*For internal use*/
@@ -32,8 +33,8 @@ typedef struct StandOrderRecord {
 	long timeAssigned;
 	long timeLastOperation;
 	long interval;
-	SORec* SORecLast;
-	SORec* SORecNext;	
+	struct StandOrderRecord* SORecLast;
+	struct StandOrderRecord* SORecNext;
 } SORec;
 
 /*For internal use*/
@@ -43,9 +44,15 @@ typedef struct OperationRecord {
 	int type;
 	char time[20];
 	float amount;
-	OPRec* OPRecLast;
-	OPRec* OPRecNext;
+	struct OperationRecord* OPRecLast;
+	struct OperationRecord* OPRecNext;
 } OPRec;
+
+typedef struct AccountRecord {
+	long acc;
+	struct AccountRecord* AccRecLast;
+	struct AccountRecord* AccRecNext;
+} AccRec;
 
 
 /********************************************************************************
@@ -170,13 +177,158 @@ function:
 ********************************************************************************/
 float cos_GetAvg(Cos* cos);
 
+/********************************************************************************
+input:
+- Db* db: database to print
+- int mode: 1 to print all costomers
+function:
+- Print information in the database, for debug use
+********************************************************************************/
+void db_Print(Db* db, int mode);
+
+/********************************************************************************
+input:
+- Cos* cos: costomer to print
+- int mode: 0 to print all costomer information
+function:
+- Print information of the costomer
+********************************************************************************/
+void cos_Print(Cos* cos, int mode);
 
 
+/*for internal use*/
+
+void db_Read(Db* db);
+void db_LinkCos(Db* dest, Cos* cos);
+void cos_Read(Cos* cos);
+
+/*sample code*/
+int main() {
+	Db* db = db_Load();
+	db_AddCos(db, "Suzhou", "320105199509260000", "Juntong Liu", "18661206723");
+	db_AddCos(db, "Nanjing", "320100000000000000", "Wole Gequ", "18318312345");
+	db_Print(db, 1);
+	system("pause");
+}
 
 
+/*function code*/
 
+Db* db_Load() {
+	Db* db = malloc(sizeof(Db));
+	db->cosList = NULL;
+	db->dbFile = NULL;
+	/*declare an empty costomer as the first element in the list*/
+	Cos* cos = malloc(sizeof(Cos));
+	cos->accList = NULL;
+	cos->CosLast = NULL;
+	cos->CosNext = NULL;
+	strcpy(cos->address, "");
+	strcpy(cos->ID, "");
+	strcpy(cos->name, "");
+	db->cosList = cos;
+	/*check if the file exists*/
+	FILE* file = fopen("data\information.db", "r");
+	/*if doesn't exist*/
+	if (file == NULL) {
+		/*create the database file*/
+		file = fopen("data\information.db", "w+");
+		fclose(file);
+		return db;
+	}
+	/*if exist*/
+	else {
+		fclose(file);
+		db_Read(db);
+		return db;
+	}
+}
 
+void db_Read(Db* db) {
+	FILE* file = fopen("data\information.db", "r+");
+	Cos* index = db->cosList;
+	int i = 1;
+	if (fgetc(file) == EOF) {
+		return;
+	}
+	fread(index, sizeof(Cos), 1, db->dbFile);
+	do {
+		Cos* buffer = malloc(sizeof(Cos));
+		fread(buffer, sizeof(Cos), 1, db->dbFile);
+		if (strcmp(buffer->ID, "") != 0) {
+			buffer->accList = NULL;
+			buffer->CosLast = NULL;
+			buffer->CosNext = NULL;
+			cos_Read(buffer);
+			db_LinkCos(db, buffer);
+		}
+		else {
+			i = 0;
+			free(buffer);
+		}
+	} while (i);
+}
 
+void db_LinkCos(Db* dest, Cos* cos) {
+	Cos* buffer = dest->cosList;
+	while (buffer->CosNext != NULL) {
+		buffer = buffer->CosNext;
+	}
+	buffer->CosNext = cos;
+	cos->CosLast = buffer;
+}
+
+Cos* db_AddCos(Db* db, char address[], char ID[], char name[], char telephone[]) {
+	Cos* buffer = malloc(sizeof(Cos));
+	Acc* acc = malloc(sizeof(Acc));
+	acc->AccLast = NULL;
+	acc->AccNext = NULL;
+	acc->accountNumber = 0;
+	acc->OPRecList = NULL;
+	acc->PIN = 0;
+	acc->SORecList = NULL;
+	acc->state = 0;
+	buffer->accList = acc;
+	strcpy(buffer->address, address);
+	strcpy(buffer->name, name);
+	strcpy(buffer->telephone, telephone);
+	strcpy(buffer->ID, ID);
+	buffer->CosLast = NULL;
+	buffer->CosNext = NULL;
+	db_LinkCos(db, buffer);
+	return buffer;
+}
+
+void cos_Read(Cos* cos) {
+
+}
+
+void cos_Print(Cos* cos, int mode) {
+	if (mode < 0) {
+		return;
+	}
+	printf("Name: %s\n", cos->name);
+	printf("ID  : %s\n", cos->ID);
+	printf("Tel : %s\n", cos->telephone);
+	printf("Add : %s\n", cos->address);
+}
+
+void db_Print(Db* db, int mode) {
+	Cos* buffer = db->cosList;
+	if (buffer->CosNext == NULL) {
+		puts("No record");
+	}
+	else {
+		while (buffer->CosNext != NULL) {
+			buffer = buffer->CosNext;
+			cos_Print(buffer, mode - 1);
+			puts("");
+		}
+		puts("Finished");
+	}
+}
+
+/*unfinished*/
 Acc* cos_AddAcc(Cos* cos, int PIN) {
 	Acc* acc = (Acc*)malloc(sizeof(Acc));
 	acc->accountNumber = time(0);

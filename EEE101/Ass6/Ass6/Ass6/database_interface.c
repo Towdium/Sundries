@@ -2,29 +2,29 @@
 
 typedef struct Database {
 	FILE* dbFile;
-	Cos* cosList;
+	struct Costomer* cosList;
 } Db;
 
 typedef struct Costomer {
-	Acc* accList;
+	struct Account* accList;
 	char name[30];
 	char address[100];
 	char telephone[20];
 	char ID[20];
-	SORec* SORecList;
-	OPRec* OPRecList;
-	Cos* CosLast;
-	Cos* CosNext;
+	struct StandOrderRecord* SORecList;
+	struct OperationRecord* OPRecList;
+	struct Costomer* CosLast;
+	struct Costomer* CosNext;
 } Cos;
 
 typedef struct Account {
 	long accountNumber;
 	int PIN;
 	int state;/*1 when active, 0 when freezed*/
-	SORec* SORecList;
-	OPRec* OPRecList;
-	Acc* AccLast;
-	Acc* AccNext;
+	struct StandOrderRecord* SORecList;
+	struct OperationRecord* OPRecList;
+	struct Account* AccLast;
+	struct Account* AccNext;
 } Acc;
 
 /*For internal use*/
@@ -32,8 +32,8 @@ typedef struct StandOrderRecord {
 	long timeAssigned;
 	long timeLastOperation;
 	long interval;
-	SORec* SORecLast;
-	SORec* SORecNext;
+	struct StandOrderRecord* SORecLast;
+	struct StandOrderRecord* SORecNext;
 } SORec;
 
 /*For internal use*/
@@ -42,8 +42,8 @@ typedef struct OperationRecord {
 	int type;
 	char time[20];
 	float amount;
-	OPRec* OPRecLast;
-	OPRec* OPRecNext;
+	struct OperationRecord* OPRecLast;
+	struct OperationRecord* OPRecNext;
 } OPRec;
 
 
@@ -168,3 +168,5 @@ function:
 - Calculate and return the avarage balance of the costomer
 ********************************************************************************/
 float cos_GetAvg(Cos* cos);
+
+
