@@ -4,12 +4,11 @@
 #include <time.h>
 
 typedef struct Database {
-	FILE* dbFile;
 	struct Costomer* cosList;
 } Db;
 
 typedef struct Costomer {
-	struct Account* accList;
+	struct AccountRecord* accList;
 	char name[30];
 	char address[100];
 	char telephone[20];
@@ -19,6 +18,7 @@ typedef struct Costomer {
 } Cos;
 
 typedef struct Account{
+	char ownerID[20];
 	long accountNumber;
 	int PIN;
 	int state;/*1 when active, 0 when freezed*/
@@ -198,9 +198,13 @@ void cos_Print(Cos* cos, int mode);
 
 /*for internal use*/
 
-void db_Read(Db* db);
+void db_Fread(Db* db);
 void db_LinkCos(Db* dest, Cos* cos);
-void cos_Read(Cos* cos);
+void db_Fwrite(Db* db);
+void cos_Fwrite(Cos* cos, FILE* stream);
+void cos_Fread(Cos* cos, FILE* stream);
+void checkString(char str[]);
+void db_AddAcc(int PIN, long accNum);
 
 /*sample code*/
 int main() {
@@ -208,6 +212,7 @@ int main() {
 	db_AddCos(db, "Suzhou", "320105199509260000", "Juntong Liu", "18661206723");
 	db_AddCos(db, "Nanjing", "320100000000000000", "Wole Gequ", "18318312345");
 	db_Print(db, 1);
+	db_Free(db);
 	system("pause");
 }
 
@@ -217,7 +222,6 @@ int main() {
 Db* db_Load() {
 	Db* db = malloc(sizeof(Db));
 	db->cosList = NULL;
-	db->dbFile = NULL;
 	/*declare an empty costomer as the first element in the list*/
 	Cos* cos = malloc(sizeof(Cos));
 	cos->accList = NULL;
@@ -228,38 +232,38 @@ Db* db_Load() {
 	strcpy(cos->name, "");
 	db->cosList = cos;
 	/*check if the file exists*/
-	FILE* file = fopen("data\information.db", "r");
+	FILE* file = fopen(".\\data\\information.db", "r");
 	/*if doesn't exist*/
 	if (file == NULL) {
 		/*create the database file*/
-		file = fopen("data\information.db", "w+");
+		system("mkdir data");
+		file = fopen(".\\data\\information.db", "w+");
 		fclose(file);
 		return db;
 	}
 	/*if exist*/
 	else {
 		fclose(file);
-		db_Read(db);
+		db_Fread(db);
 		return db;
 	}
 }
 
-void db_Read(Db* db) {
-	FILE* file = fopen("data\information.db", "r+");
-	Cos* index = db->cosList;
+void db_Fread(Db* db) {
+	FILE* file = fopen(".\\data\\information.db", "r+");
+	Cos* temp = malloc(sizeof(Cos));
 	int i = 1;
 	if (fgetc(file) == EOF) {
+		free(temp);
 		return;
 	}
-	fread(index, sizeof(Cos), 1, db->dbFile);
+	fseek(file, -1, SEEK_CUR);
+	fread(temp, sizeof(Cos), 1, file);
+	free(temp);
 	do {
 		Cos* buffer = malloc(sizeof(Cos));
-		fread(buffer, sizeof(Cos), 1, db->dbFile);
+		cos_Fread(buffer, file);
 		if (strcmp(buffer->ID, "") != 0) {
-			buffer->accList = NULL;
-			buffer->CosLast = NULL;
-			buffer->CosNext = NULL;
-			cos_Read(buffer);
 			db_LinkCos(db, buffer);
 		}
 		else {
@@ -278,17 +282,28 @@ void db_LinkCos(Db* dest, Cos* cos) {
 	cos->CosLast = buffer;
 }
 
+void cos_LinkAccRec(Cos* dest, AccRec* accRec) {
+	AccRec* buffer = dest->accList;
+	while (buffer->AccRecNext != NULL) {
+		buffer = buffer->AccRecNext;
+	}
+	buffer->AccRecNext = accRec;
+	accRec->AccRecLast = buffer;
+}
+
 Cos* db_AddCos(Db* db, char address[], char ID[], char name[], char telephone[]) {
 	Cos* buffer = malloc(sizeof(Cos));
-	Acc* acc = malloc(sizeof(Acc));
-	acc->AccLast = NULL;
-	acc->AccNext = NULL;
-	acc->accountNumber = 0;
-	acc->OPRecList = NULL;
-	acc->PIN = 0;
-	acc->SORecList = NULL;
-	acc->state = 0;
-	buffer->accList = acc;
+	checkString(address);
+	checkString(ID);
+	checkString(name);
+	checkString(telephone);
+	/*set the first element in the account list to be empty*/
+	AccRec* accRec = malloc(sizeof(AccRec));
+	accRec->acc = 0;
+	accRec->AccRecLast = NULL;
+	accRec->AccRecNext = NULL;
+	buffer->accList = accRec;
+	/*assign input value*/
 	strcpy(buffer->address, address);
 	strcpy(buffer->name, name);
 	strcpy(buffer->telephone, telephone);
@@ -296,11 +311,45 @@ Cos* db_AddCos(Db* db, char address[], char ID[], char name[], char telephone[])
 	buffer->CosLast = NULL;
 	buffer->CosNext = NULL;
 	db_LinkCos(db, buffer);
+	/*update file content*/
+	db_Fwrite(db);
 	return buffer;
 }
 
-void cos_Read(Cos* cos) {
-
+void cos_Fread(Cos* cos, FILE* stream) {
+	Cos* temp = malloc(sizeof(Cos));
+	AccRec* accRec = malloc(sizeof(AccRec));
+	accRec->acc = 0;
+	accRec->AccRecLast = NULL;
+	accRec->AccRecNext = NULL;
+	cos->accList = accRec;
+	fread(temp, sizeof(Cos), 1, stream);
+	cos->CosLast = NULL;
+	cos->CosNext = NULL;
+	strcpy(cos->ID, temp->ID);
+	strcpy(cos->name, temp->name);
+	strcpy(cos->address, temp->address);
+	strcpy(cos->telephone, temp->telephone);
+	if (strcmp(temp->ID, "") == 0) {
+		cos->accList == NULL;
+	}
+	else {
+		int i = 1;
+		AccRec* temp = malloc(sizeof(AccRec));
+		fread(temp, sizeof(AccRec), 1, stream);
+		free(temp);
+		while (i) {
+			AccRec* buffer = malloc(sizeof(AccRec));
+			fread(buffer, sizeof(AccRec), 1, stream);
+			if (buffer->acc == 0) {
+				i = 0;
+				free(buffer);
+			}
+			else {
+				cos_LinkAccRec(cos, buffer);
+			}
+		}
+	}
 }
 
 void cos_Print(Cos* cos, int mode) {
@@ -325,6 +374,69 @@ void db_Print(Db* db, int mode) {
 			puts("");
 		}
 		puts("Finished");
+	}
+}
+
+void db_Free(Db* db) {
+	Cos* buffer = db->cosList;
+	while (buffer->CosNext != NULL) {
+		buffer = buffer->CosNext;
+	}
+	while (buffer->CosLast != NULL) {
+		buffer = buffer->CosLast;
+		free(buffer->CosNext);
+	}
+	free(buffer);
+	free(db);
+}
+
+void db_Fwrite(Db* db) {
+	Cos* buffer = db->cosList;
+	Cos empty = { NULL, "", NULL, NULL, "", "", "" };
+	FILE* file = fopen(".\\data\\information.db", "w+");
+	cos_Fwrite(buffer, file);
+	while (buffer->CosNext != NULL) {
+		buffer = buffer->CosNext;
+		cos_Fwrite(buffer, file);
+	}
+	cos_Fwrite(&empty, file);
+	fclose(file);
+}
+
+void cos_Fwrite(Cos* cos, FILE* stream) {
+	if (cos->accList == NULL) {
+		fwrite(cos, sizeof(Cos), 1, stream);
+	}
+	else {
+		AccRec* index = cos->accList;
+		AccRec empty = { 0, NULL, NULL };
+		fwrite(cos, sizeof(Cos), 1, stream);
+		while (index->AccRecNext != NULL) {
+			fwrite(index, sizeof(AccRec), 1, stream);
+			index = index->AccRecNext;
+		}
+		fwrite(index, sizeof(AccRec), 1, stream);
+		fwrite(&empty, sizeof(AccRec), 1, stream);
+	}
+}
+
+Cos* db_GetCos(Db* db, char ID[]) {
+	Cos* index = db->cosList;
+	while (index->CosNext != NULL) {
+		index = index->CosNext;
+		if (strcmp(index->ID, ID) == 0) {
+			return index;
+		}
+	}
+}
+
+void checkString(char str[]) {
+	int l = strlen(str);
+	int i = 0;
+	for (i = 0; i < l; i++) {
+		if (str[i] == '\n') {
+			str[i] = '\0';
+		}
 	}
 }
 
