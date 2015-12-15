@@ -18,6 +18,9 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="database.c" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B1E0ECF3-3398-420B-93C5-64C67886CE5B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -141,9 +144,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="database.c" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

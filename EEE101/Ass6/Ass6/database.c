@@ -6,6 +6,7 @@
 typedef struct Database {
 	struct Costomer* cosList;
 	struct Account* accList;
+	FILE* log;
 } Db;
 
 typedef struct Costomer {
@@ -32,10 +33,10 @@ typedef struct Account{
 
 /*For internal use*/
 typedef struct StandOrderRecord {
-	long timeAssigned;
-	long timeLastOperation;
+	time_t timeAssigned;
+	time_t timeLastOperation;
 	long interval;
-	long timeEnd;
+	time_t timeEnd;
 	struct StandOrderRecord* SORecLast;
 	struct StandOrderRecord* SORecNext;
 } SORec;
@@ -45,7 +46,7 @@ typedef struct OperationRecord {
 	/*0 when withdraw, 1 when deposit*/
 	/*2 when stand order in, 3 when stand order out*/
 	int type;
-	char time[20];
+	time_t time;
 	float amount;
 	char info[20];
 	struct OperationRecord* OPRecLast;
@@ -113,7 +114,7 @@ function:
 - Search and return the account with corresponding account number in the costomer
 - Return NULL when no such costomer found
 ********************************************************************************/
-Acc* cos_GetAcc(Cos* cos, long accNum);
+Acc* db_GetAcc(Db* db, long accNum);
 
 /********************************************************************************
 input:
@@ -143,11 +144,12 @@ Acc* db_AddAcc(Db* db, int PIN, Cos* cos);
 input:
 - Acc* acc: the destination account
 - long interval: the interval between each transfer
+- long duration: the time this function will operate
 - float amount: the amount to move
 function:
 - Add one stand order record to exsiting account
 ********************************************************************************/
-void acc_AddSORec(Acc* acc, long interval, float amount);
+void acc_AddSORec(Acc* acc, long interval, long duration, float amount);
 
 /********************************************************************************
 input:
@@ -170,17 +172,18 @@ remarks:
 - Remember to check if there is enough balance
 - This function will automatically add operation record
 ********************************************************************************/
-int acc_Withdraw(Acc* acc, float amount);
+void acc_Withdraw(Acc* acc, float amount);
 
 /********************************************************************************
 input:
 - Cos* cos: the destination costomer
+- Db* db: the database
 return:
 - float: the avarage balance of the costomer
 function:
 - Calculate and return the avarage balance of the costomer
 ********************************************************************************/
-float cos_GetAvg(Cos* cos);
+float cos_GetAvg(Cos* cos, Db* db);
 
 /********************************************************************************
 input:
@@ -212,7 +215,7 @@ void db_LinkCos(Db* dest, Cos* cos);
 void db_Fwrite(Db* db);
 void cos_Fwrite(Cos* cos, FILE* stream, Db* db);
 void cos_Fread(Cos* cos, FILE* stream, Db* db);
-void checkString(char str[]);
+void utl_CheckString(char str[]);
 void acc_Print(Acc* acc, int mode);
 void db_LinkAcc(Db* dest, Acc* acc);
 void acc_Fwrite(Acc* acc);
@@ -220,17 +223,25 @@ void cos_AddAcc(Cos* cos, long accNum);
 void acc_Fread(Db* db, long accNum);
 void acc_LinkSORec(Acc* dest, SORec* buffer);
 void acc_LinkOPRec(Acc* dest, OPRec* opRec);
+void acc_AddOPRec(Acc* dest, float amount, char info[], int type);
+void soRec_Print(SORec* soRec);
+void opRec_Print(OPRec* opRec);
+char* utl_timeSprintf(char buffer[], time_t time);
+void acc_Free(Acc* acc);
+void cos_Free(Cos* cos);
 
 
 /*sample code*/
 int main() {
 	Db* db = db_Load();
 	Cos* cos;
-	db_AddCos(db, "Suzhou", "320105199509260000", "Juntong Liu", "18661206723");
-	db_AddCos(db, "Nanjing", "320100000000000000", "Wole Gequ", "18318312345");
-	cos = db_GetCos(db, "320105199509260000");
-	db_AddAcc(db, 123456, cos);
-	db_Print(db, 2);
+	Acc* acc;
+	cos = db_AddCos(db, "Suzhou", "320105199509260000", "Juntong Liu", "18661206723");
+	acc = db_AddAcc(db, 123456, cos);
+	acc = db_AddAcc(db, 123456, cos);
+	acc_Deposit(acc, 123);
+	db_Print(db, 3);
+	printf("\navg balance is %f", cos_GetAvg(cos, db));
 	db_Free(db);
 	system("pause");
 }
@@ -324,10 +335,10 @@ void cos_LinkAccRec(Cos* dest, AccRec* accRec) {
 
 Cos* db_AddCos(Db* db, char address[], char ID[], char name[], char telephone[]) {
 	Cos* buffer = malloc(sizeof(Cos));
-	checkString(address);
-	checkString(ID);
-	checkString(name);
-	checkString(telephone);
+	utl_CheckString(address);
+	utl_CheckString(ID);
+	utl_CheckString(name);
+	utl_CheckString(telephone);
 	/*set the first element in the account list to be empty*/
 	AccRec* accRec = malloc(sizeof(AccRec));
 	accRec->acc = 0;
@@ -377,6 +388,8 @@ void cos_Fread(Cos* cos, FILE* stream, Db* db) {
 				free(buffer);
 			}
 			else {
+				buffer->AccRecLast = NULL;
+				buffer->AccRecNext = NULL;
 				cos_LinkAccRec(cos, buffer);
 				acc_Fread(db, buffer->acc);
 			}
@@ -419,7 +432,7 @@ void db_Print(Db* db, int mode) {
 			cos_Print(buffer, mode - 1, db);
 			puts("");
 		}
-		puts("Finished");
+		puts("Print finished");
 	}
 }
 
@@ -430,7 +443,7 @@ void db_Free(Db* db) {
 	}
 	while (bufferC->CosLast != NULL) {
 		bufferC = bufferC->CosLast;
-		free(bufferC->CosNext);
+		cos_Free(bufferC->CosNext);
 	}
 	free(bufferC);
 	Acc* bufferA = db->accList;
@@ -439,7 +452,7 @@ void db_Free(Db* db) {
 	}
 	while (bufferA->AccLast != NULL) {
 		bufferA = bufferA->AccLast;
-		free(bufferA->AccNext);
+		acc_Free(bufferA->AccNext);
 	}
 	free(bufferA);
 	free(db);
@@ -489,7 +502,7 @@ Cos* db_GetCos(Db* db, char ID[]) {
 	return NULL;
 }
 
-void checkString(char str[]) {
+void utl_CheckString(char str[]) {
 	int l = strlen(str);
 	int i = 0;
 	for (i = 0; i < l; i++) {
@@ -500,6 +513,8 @@ void checkString(char str[]) {
 }
 
 Acc* db_AddAcc(Db* db, int PIN, Cos* cos) {
+	long temp;
+	Acc* test;
 	Acc* buffer = malloc(sizeof(Acc));
 	/*set the first element in the account list to be empty*/
 	SORec* soRec = malloc(sizeof(SORec));
@@ -515,15 +530,20 @@ Acc* db_AddAcc(Db* db, int PIN, Cos* cos) {
 	opRec->OPRecLast = NULL;
 	opRec->OPRecNext = NULL;
 	opRec->type = -1;
+	opRec->time = 0;
 	strcpy(opRec->info, "");
-	strcpy(opRec->time, "");
 	buffer->OPRecList = opRec;
 	/*assign input value*/
 	buffer->PIN = PIN;
 	buffer->state = 1;
 	buffer->AccLast = NULL;
 	buffer->AccNext = NULL;
-	buffer->accountNumber = time(0);
+	temp = time(0);
+	while (db_GetAcc(db, temp) != 0) {
+		test = db_GetAcc(db, temp);
+		temp++;
+	}
+	buffer->accountNumber = temp;
 	buffer->balance = 0;
 	strcpy(buffer->ownerID, "");
 	strcpy(buffer->ownerID, cos->ID);
@@ -588,18 +608,43 @@ void cos_AddAcc(Cos* dest, long accNum) {
 }
 
 void acc_Print(Acc* acc, int mode) {
+	if (mode < 0) {
+		return;
+	}
 	printf("Acc Num : %ld\n", acc->accountNumber);
 	printf("Balance : %f\n", acc->balance);
 	printf("Costomer: %s\n", acc->ownerID);
 	printf("PIN     : %06d\n", acc->PIN);
 	printf("State   : %d\n", acc->state);
+	if (mode == 1) {
+		OPRec* index1 = acc->OPRecList;
+		SORec* index2 = acc->SORecList;
+		if (index1->OPRecNext != NULL) {
+			while (index1->OPRecNext != NULL) {
+				index1 = index1->OPRecNext;
+				opRec_Print(index1);
+			}
+		}
+		else {
+			puts("No operation record");
+		}
+		if (index2->SORecNext != NULL) {
+			while (index2->SORecNext != NULL) {
+				index2 = index2->SORecNext;
+				soRec_Print(index2);
+			}
+		}
+		else {
+			puts("No stand order record");
+		}
+	}
 }
 
 Acc* db_GetAcc(Db* db, long accNum) {
 	Acc* index = db->accList;
 	while (index->AccNext != NULL) {
 		index = index->AccNext;
-		if (index->accountNumber = accNum) {
+		if (index->accountNumber == accNum) {
 			return index;
 		}
 	}
@@ -620,6 +665,8 @@ void acc_Fread(Db* db, long accNum) {
 	strcat(filename, accNumC);
 	file = fopen(filename, "r+");
 	fread(buffer, sizeof(Acc), 1, file);
+	buffer->AccLast = NULL;
+	buffer->AccNext = NULL;
 	fread(temp1, sizeof(SORec), 1, file);
 	free(temp1);
 	temp3->interval = 0;
@@ -629,13 +676,12 @@ void acc_Fread(Db* db, long accNum) {
 	temp3->timeEnd = 0;
 	temp3->timeLastOperation = 0;
 	buffer->SORecList = temp3;
-
 	temp4->amount = 0;
 	temp4->OPRecLast = NULL;
 	temp4->OPRecNext = NULL;
 	temp4->type = -1;
 	strcpy(temp4->info, "");
-	strcpy(temp4->time, "");
+	temp4->time = 0;
 	buffer->OPRecList = temp4;
 	while (i) {
 		SORec* buffer1 = malloc(sizeof(SORec));
@@ -645,10 +691,11 @@ void acc_Fread(Db* db, long accNum) {
 			free(buffer1);
 		}
 		else {
+			buffer1->SORecLast = NULL;
+			buffer1->SORecNext = NULL;
 			acc_LinkSORec(buffer, buffer1);
 		}
 	}
-
 	fread(temp2, sizeof(OPRec), 1, file);
 	free(temp2);
 	i = 1;
@@ -660,6 +707,8 @@ void acc_Fread(Db* db, long accNum) {
 			free(buffer2);
 		}
 		else {
+			buffer2->OPRecLast = NULL;
+			buffer2->OPRecNext = NULL;
 			acc_LinkOPRec(buffer, buffer2);
 		}
 	}
@@ -682,4 +731,124 @@ void acc_LinkOPRec(Acc* dest, OPRec* opRec) {
 	}
 	buffer->OPRecNext = opRec;
 	opRec->OPRecLast = buffer;
+}
+
+void acc_AddOPRec(Acc* dest, float amount, char info[], int type) {	
+	OPRec* buffer = malloc(sizeof(OPRec));
+	time( &(buffer->time) );
+	buffer->amount = amount;
+	buffer->type = type;
+	strcpy(buffer->info, info);
+	buffer->OPRecLast = NULL;
+	buffer->OPRecNext = NULL;
+	acc_LinkOPRec(dest, buffer);
+	acc_Fwrite(dest);
+}
+
+void acc_Deposit(Acc* acc, float amount) {
+	acc->balance += amount;
+	acc_AddOPRec(acc, amount, "", 1);
+}
+
+void acc_Withdraw(Acc* acc, float amount) {
+	acc->balance -= amount;
+	acc_AddOPRec(acc, amount, "", 0);
+}
+
+void soRec_Print(SORec* soRec) {
+	char buffer[30];
+	printf("interval   : %ld\n", soRec->interval);
+	printf("start time : %s\n", utl_timeSprintf(buffer, soRec->timeAssigned));
+	printf("end time   : %s\n", utl_timeSprintf(buffer, soRec->timeEnd));
+	printf("last oprate: %s\n", utl_timeSprintf(buffer, soRec->timeLastOperation));
+}
+
+void opRec_Print(OPRec* opRec) {
+	char buffer[30];
+	printf("Record: ");
+	switch (opRec->type)
+	{
+	case 0:
+		puts("dithdraw");
+		break;
+	case 1:
+		puts("deposit");
+		break;
+	case 2:
+		puts("stand order out");
+		printf("To    : %s", opRec->info);
+		break;
+	case 3:
+		puts("stand order in");
+		printf("From  : %s", opRec->info);
+		break;
+	default:
+		puts("unknown operation");
+		break;
+	}
+	printf("Amount: %f\n", opRec->amount);
+	printf("Time  : %s\n", utl_timeSprintf(buffer, opRec->time));
+}
+
+/*size of buffer should equal to or be larger than 26*/
+char* utl_timeSprintf(char buffer[], time_t time) {
+	sprintf(buffer, "%s", asctime(localtime(&time)));
+	utl_CheckString(buffer);
+	return buffer;
+}
+
+float cos_GetAvg(Cos* cos, Db* db) {
+	int i = 0;
+	float total = 0;
+	float tempf;
+	AccRec* index = cos->accList;
+	Acc* temp;
+	if (index->AccRecNext == NULL) {
+		return 0;
+	}
+	else {
+		while (index->AccRecNext != NULL) {
+			index = index->AccRecNext;
+			temp = db_GetAcc(db, index->acc);
+			tempf = temp->balance;
+			total = total + tempf;
+			i++;
+		}
+	}
+	return total / i;
+}
+
+void acc_Free(Acc* acc) {
+	SORec* bufferS = acc->SORecList;
+	OPRec* bufferO = acc->OPRecList;
+	while (bufferS->SORecNext != NULL) {
+		bufferS = bufferS->SORecNext;
+	}
+	while (bufferS->SORecLast != NULL) {
+		bufferS = bufferS->SORecLast;
+		free(bufferS->SORecNext);
+	}
+	free(bufferS);
+	while (bufferO->OPRecNext != NULL) {
+		bufferO = bufferO->OPRecNext;
+	}
+	while (bufferO->OPRecLast != NULL) {
+		bufferO = bufferO->OPRecLast;
+		free(bufferO->OPRecNext);
+	}
+	free(bufferO);
+	free(acc);
+}
+
+void cos_Free(Cos* cos) {
+	AccRec* buffer = cos->accList;
+	while (buffer->AccRecNext != NULL) {
+		buffer = buffer->AccRecNext;
+	}
+	while (buffer->AccRecLast != NULL) {
+		buffer = buffer->AccRecLast;
+		free(buffer->AccRecNext);
+	}
+	free(buffer);
+	free(cos);
 }
