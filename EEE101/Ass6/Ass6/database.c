@@ -2,12 +2,12 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
-#include <Windows.h>
+#include <windows.h>
 
 typedef struct Database {
 	struct Costomer* cosList;
 	struct Account* accList;
-	FILE* log;
+	int SO_State;
 } Db;
 
 typedef struct Costomer {
@@ -224,6 +224,8 @@ void cos_Free(Cos* cos);
 void acc_CheckSO(Acc* acc, Db* db);
 void soRec_CheckSO(SORec* soRec, Acc* dest, Db* db);
 void acc_OperateSO(Acc* acc, SORec* soRec, Db* db);
+void db_CheckSO(Db* db);
+void db_SOCheckInit(void* _db, long frequency);
 
 /*sample code*/
 int main() {
@@ -232,8 +234,9 @@ int main() {
 	Acc* acc;
 	cos = db_AddCos(db, "Suzhou", "320105199509260000", "Juntong Liu", "18661206723");
 	acc = db_AddAcc(db, 123456, cos);
-	acc = db_AddAcc(db, 123456, cos);
-	cos = db_GetCos(db, "320105199509260000");
+	acc_Deposit(acc, 200);
+	acc_AddSORec(acc, 1, 10, 1, acc->accountNumber);
+	system("pause");
 	printf("%s", cos->address);
 	acc_Deposit(acc, 123);
 	db_Print(db, 3);
@@ -277,12 +280,16 @@ Db* db_Load() {
 		system("mkdir data");
 		file = fopen(".\\data\\information.db", "w+");
 		fclose(file);
+		db->SO_State = 0;
+		_beginthread(db_SOCheckInit, 0, (void*)db);
 		return db;
 	}
 	/*if exist*/
 	else {
 		fclose(file);
 		db_Fread(db);
+		db->SO_State = 0;
+		_beginthread(db_SOCheckInit, 0, (void*)db);
 		return db;
 	}
 }
@@ -444,6 +451,10 @@ void db_Print(Db* db, int mode) {
 
 void db_Free(Db* db) {
 	Cos* bufferC = db->cosList;
+	db->SO_State = 2;
+	while (db->SO_State != 3) {
+		Sleep(10);
+	}
 	while (bufferC->CosNext != NULL) {
 		bufferC = bufferC->CosNext;
 	}
@@ -461,7 +472,6 @@ void db_Free(Db* db) {
 		acc_Free(bufferA->AccNext);
 	}
 	free(bufferA);
-	free(db);
 }
 
 void db_Fwrite(Db* db) {
@@ -913,9 +923,9 @@ void acc_AddSORec(Acc* acc, long interval, long duration, float amount, long des
 	acc_Fwrite(acc);
 }
 
-void db_CheckSO(void* _db) {
-	Db* db = (Db*) _db;
+void db_CheckSO(Db* db) {
 	Acc* index = db->accList;
+
 	while (index->AccNext != 0) {
 		index = index->AccNext;
 		acc_CheckSO(index, db);
@@ -930,15 +940,25 @@ void acc_CheckSO(Acc* acc, Db* db) {
 	}
 }
 
+
 void soRec_CheckSO(SORec* soRec, Acc* dest, Db* db) {
 	time_t tm;
 	int i;
 	if ((soRec->timeEnd) - (soRec->timeLastOperation) < soRec->interval) {
+		return;
+	}
+	else {
 		time(&tm);
-		i = ((soRec->timeEnd) - tm) / soRec->interval;
+		if (tm > soRec->timeEnd) {
+			i = (soRec->timeEnd - soRec->timeLastOperation) / soRec->interval;
+		}
+		else {
+			i = (tm - (soRec->timeLastOperation)) / soRec->interval;
+		}
 		for (i; i > 0; i--) {
 			acc_OperateSO(dest, soRec, db);
 		}
+		soRec->timeLastOperation = tm;
 	}
 }
 
@@ -957,4 +977,14 @@ void acc_OperateSO(Acc* acc, SORec* soRec, Db* db) {
 		sprintf(buffer, "%ld", soRec->dest);
 		acc_AddOPRec(acc, 0, buffer, 4);
 	}
+}
+
+void db_SOCheckInit(void* _db) {
+	Db* db = (Db*)_db;
+	while (db->SO_State == 0) {
+		Sleep(1000);
+		db_CheckSO(db);
+	}
+	db->SO_State = 3;
+	return;
 }
