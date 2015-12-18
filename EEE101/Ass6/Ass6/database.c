@@ -1171,7 +1171,7 @@ void opRec_Print(OPRec* opRec) {
 		puts("stand order failed due to account freezed");
 		break;
 	default:
-		puts("stand order failed due to account freezed");
+		puts("unknown record type");
 		printf("To    : %s\n", opRec->info);
 		break;
 	}
