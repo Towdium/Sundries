@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <windows.h>
+#include <process.h>
 
 /********************************************************************************
 =================================================================================
@@ -13,20 +14,20 @@
 ********************************************************************************/
 
 typedef struct Database {
-	struct Costomer* cosList;
+	struct Customer* cusList;
 	struct Account* accList;
 	int SO_State; /*0 operation idle, 1 under operation, 2 main thread call to end, 3 thread terminated*/
 } Db;
 
-typedef struct Costomer {
+typedef struct Customer {
 	struct AccountRecord* accList;
 	char name[30];
 	char address[100];
 	char telephone[20];
 	char ID[20];
-	struct Costomer* CosLast;
-	struct Costomer* CosNext;
-} Cos;
+	struct Customer* CusLast;
+	struct Customer* CusNext;
+} Cus;
 
 typedef struct Account{
 	float balance;
@@ -114,12 +115,12 @@ input:
 - Db* db: pointer to the database
 - char ID[]: string of ID
 return:
-- Cos*: the costomer found or NULL when not found
+- Cus*: the customer found or NULL when not found
 function:
-- Search and return the costomer with corresponding ID in the database
-- Return NULL when no such costomer found
+- Search and return the customer with corresponding ID in the database
+- Return NULL when no such customer found
 ********************************************************************************/
-Cos* db_GetCos(Db* db, char ID[]);
+Cus* db_GetCus(Db* db, char ID[]);
 
 /********************************************************************************
 input:
@@ -129,33 +130,33 @@ return:
 - Acc*: the account found or NULL when not found
 function:
 - Search and return the account with corresponding account number in the database
-- Return NULL when no such costomer found
+- Return NULL when no such customer found
 ********************************************************************************/
 Acc* db_GetAcc(Db* db, long accNum);
 
 /********************************************************************************
 input:
 - Db* db: pointer to the database
-- others: costomer information
+- others: customer information
 return:
-- Cos*: generated costomer
+- Cus*: generated customer
 function:
-- Add one costomer to the exist database
-- Remenber to check if there is already a costomer with the ID. Use db_GetCos
+- Add one customer to the exist database
+- Remenber to check if there is already a customer with the ID. Use db_GetCus
 ********************************************************************************/
-Cos* db_AddCos(Db* db, char address[], char ID[], char name[], char telephone[]);
+Cus* db_AddCus(Db* db, char address[], char ID[], char name[], char telephone[]);
 
 /********************************************************************************
 input:
 - Db* db: the destination database
-- Cos* cos: the destination costomer
+- Cus* cus: the destination customer
 - int PIN: the PIN number
 return:
 - The generated account
 function:
-- Add one account to the exist costomer
+- Add one account to the exist customer
 ********************************************************************************/
-Acc* db_AddAcc(Db* db, int PIN, Cos* cos);
+Acc* db_AddAcc(Db* db, int PIN, Cus* cus);
 
 /********************************************************************************
 input:
@@ -193,19 +194,19 @@ void acc_Withdraw(Acc* acc, float amount);
 
 /********************************************************************************
 input:
-- Cos* cos: the destination costomer
+- Cus* cus: the destination customer
 - Db* db: the database
 return:
-- float: the avarage balance of the costomer
+- float: the avarage balance of the customer
 function:
-- Calculate and return the avarage balance of the costomer
+- Calculate and return the avarage balance of the customer
 ********************************************************************************/
-float cos_GetAvg(Cos* cos, Db* db);
+float cus_GetAvg(Cus* cus, Db* db);
 
 /********************************************************************************
 input:
 - Db* db: database to print
-- int mode: 1 to print all costomers
+- int mode: 1 to print all customers
 function:
 - Print information in the database, for debug use
 ********************************************************************************/
@@ -213,16 +214,16 @@ void db_Print(Db* db, int mode);
 
 /********************************************************************************
 input:
-- Cos* cos: costomer to print
+- Cus* cus: customer to print
 - int mode: 
-- - 1 to print all costomer information
-- - 2 to print all costomer with account
+- - 1 to print all customer information
+- - 2 to print all customer with account
 function:
-- Print information of the costomer
+- Print information of the customer
 remarks:
 - This is used as a debug tool
 ********************************************************************************/
-void cos_Print(Cos* cos, int mode, Db* db);
+void cus_Print(Cus* cus, int mode, Db* db);
 
 /********************************************************************************
 =================================================================================
@@ -243,12 +244,12 @@ void db_Fread(Db* db);
 
 /********************************************************************************
 input:
-- Db* db: database to link the costomer
-- Cos* cos: the costomer to be added
+- Db* db: database to link the customer
+- Cus* cus: the customer to be added
 function:
-- Link one existing costomer to the database
+- Link one existing customer to the database
 ********************************************************************************/
-void db_LinkCos(Db* dest, Cos* cos);
+void db_LinkCus(Db* dest, Cus* cus);
 
 /********************************************************************************
 input:
@@ -260,25 +261,25 @@ void db_Fwrite(Db* db);
 
 /********************************************************************************
 input:
-- Cos* cos: the costomer to write
-- FILE* stream: the file to write costomer information to
+- Cus* cus: the customer to write
+- FILE* stream: the file to write customer information to
 - Db* db: the database
 function:
-- Write all the content of the costomer into the filestream
-- Write the accounts linked to the costomer to individual files
+- Write all the content of the customer into the filestream
+- Write the accounts linked to the customer to individual files
 ********************************************************************************/
-void cos_Fwrite(Cos* cos, FILE* stream, Db* db);
+void cus_Fwrite(Cus* cus, FILE* stream, Db* db);
 
 /********************************************************************************
 input:
-- Cos* cos: the costomer to read
--FILE* stream: the file to read costomer information from
+- Cus* cus: the customer to read
+-FILE* stream: the file to read customer information from
 - Db* db: the database
 function:
-- Read all the content of the costomer from the filestream
-- Read the accounts linked to the costomer form other files
+- Read all the content of the customer from the filestream
+- Read the accounts linked to the customer form other files
 ********************************************************************************/
-void cos_Fread(Cos* cos, FILE* stream, Db* db);
+void cus_Fread(Cus* cus, FILE* stream, Db* db);
 
 /********************************************************************************
 input:
@@ -318,12 +319,12 @@ void acc_Fwrite(Acc* acc);
 
 /********************************************************************************
 input:
-- Cos* cos: the costomer to be add the account
+- Cus* cus: the customer to be add the account
 - long accNum: the account number of the account
 function:
-- Add a account record the an existing costomer
+- Add a account record the an existing customer
 ********************************************************************************/
-void cos_AddAcc(Cos* cos, long accNum);
+void cus_AddAcc(Cus* cus, long accNum);
 
 /********************************************************************************
 input:
@@ -410,11 +411,11 @@ void acc_Free(Acc* acc);
 
 /********************************************************************************
 input:
-- Cos* cos: the costomer to free
+- Cus* cus: the customer to free
 function:
-- Free all the allocated memory linked to the costomer
+- Free all the allocated memory linked to the customer
 ********************************************************************************/
-void cos_Free(Cos* cos);
+void cus_Free(Cus* cus);
 
 /********************************************************************************
 input:
@@ -488,18 +489,18 @@ void acc_unFreeze(Acc* acc);
 
 int main() {
 	Db* db = db_Load();
-	Cos* cos;
+	Cus* cus;
 	Acc* acc;
-	cos = db_AddCos(db, "Suzhou", "320105199509260000", "Juntong Liu", "18661206723");
-	acc = db_AddAcc(db, 123456, cos);
+	cus = db_AddCus(db, "Suzhou", "320105199509260000", "Juntong Liu", "18661206723");
+	acc = db_AddAcc(db, 123456, cus);
 	acc_Deposit(acc, 200);
 	acc_Freeze(acc);
 	acc_AddSORec(acc, 1, 10, 1, acc->accountNumber);
 	system("pause");
-	printf("%s", cos->address);
+	printf("%s", cus->address);
 	acc_Deposit(acc, 123);
 	db_Print(db, 3);
-	printf("\navg balance is %f", cos_GetAvg(cos, db));
+	printf("\navg balance is %f", cus_GetAvg(cus, db));
 	db_Free(db);
 	system("pause");
 }
@@ -515,17 +516,17 @@ int main() {
 
 Db* db_Load() {
 	Db* db = malloc(sizeof(Db));
-	db->cosList = NULL;
-	/*declare an empty costomer as the first element in the list*/
-	Cos* cos = malloc(sizeof(Cos));
-	cos->accList = NULL;
-	cos->CosLast = NULL;
-	cos->CosNext = NULL;
-	strcpy(cos->address, "");
-	strcpy(cos->ID, "");
-	strcpy(cos->name, "");
-	strcpy(cos->telephone, "");
-	db->cosList = cos;
+	db->cusList = NULL;
+	/*declare an empty customer as the first element in the list*/
+	Cus* cus = malloc(sizeof(Cus));
+	cus->accList = NULL;
+	cus->CusLast = NULL;
+	cus->CusNext = NULL;
+	strcpy(cus->address, "");
+	strcpy(cus->ID, "");
+	strcpy(cus->name, "");
+	strcpy(cus->telephone, "");
+	db->cusList = cus;
 	/*declare an empty account as the first element in the list*/
 	Acc* acc = malloc(sizeof(Acc));
 	acc->balance = 0;
@@ -564,7 +565,7 @@ Db* db_Load() {
 
 void db_Fread(Db* db) {
 	FILE* file = fopen(".\\data\\information.db", "r+");
-	Cos* temp = malloc(sizeof(Cos));
+	Cus* temp = malloc(sizeof(Cus));
 	int i = 1;
 	int p;
 	/*check if there is content in the file*/
@@ -584,15 +585,15 @@ void db_Fread(Db* db) {
 	rewind(file);
 	/*read the content*/
 	/*read the first empty element*/
-	fread(temp, sizeof(Cos), 1, file);
+	fread(temp, sizeof(Cus), 1, file);
 	free(temp);
 	/*read other elements*/
 	do {
-		Cos* buffer = malloc(sizeof(Cos));
-		cos_Fread(buffer, file, db);
+		Cus* buffer = malloc(sizeof(Cus));
+		cus_Fread(buffer, file, db);
 		/*check if the program reaches the last empty element*/
 		if (strcmp(buffer->ID, "") != 0) {
-			db_LinkCos(db, buffer);
+			db_LinkCus(db, buffer);
 		}
 		else {
 			i = 0;
@@ -601,16 +602,16 @@ void db_Fread(Db* db) {
 	} while (i);
 }
 
-void db_LinkCos(Db* dest, Cos* cos) {
-	Cos* buffer = dest->cosList;
-	while (buffer->CosNext != NULL) {
-		buffer = buffer->CosNext;
+void db_LinkCus(Db* dest, Cus* cus) {
+	Cus* buffer = dest->cusList;
+	while (buffer->CusNext != NULL) {
+		buffer = buffer->CusNext;
 	}
-	buffer->CosNext = cos;
-	cos->CosLast = buffer;
+	buffer->CusNext = cus;
+	cus->CusLast = buffer;
 }
 
-void cos_LinkAccRec(Cos* dest, AccRec* accRec) {
+void cus_LinkAccRec(Cus* dest, AccRec* accRec) {
 	AccRec* buffer = dest->accList;
 	while (buffer->AccRecNext != NULL) {
 		buffer = buffer->AccRecNext;
@@ -619,8 +620,8 @@ void cos_LinkAccRec(Cos* dest, AccRec* accRec) {
 	accRec->AccRecLast = buffer;
 }
 
-Cos* db_AddCos(Db* db, char address[], char ID[], char name[], char telephone[]) {
-	Cos* buffer = malloc(sizeof(Cos));
+Cus* db_AddCus(Db* db, char address[], char ID[], char name[], char telephone[]) {
+	Cus* buffer = malloc(sizeof(Cus));
 	utl_CheckString(address);
 	utl_CheckString(ID);
 	utl_CheckString(name);
@@ -636,33 +637,33 @@ Cos* db_AddCos(Db* db, char address[], char ID[], char name[], char telephone[])
 	strcpy(buffer->name, name);
 	strcpy(buffer->telephone, telephone);
 	strcpy(buffer->ID, ID);
-	buffer->CosLast = NULL;
-	buffer->CosNext = NULL;
-	db_LinkCos(db, buffer);
+	buffer->CusLast = NULL;
+	buffer->CusNext = NULL;
+	db_LinkCus(db, buffer);
 	/*update file content*/
 	db_Fwrite(db);
 	return buffer;
 }
 
-void cos_Fread(Cos* cos, FILE* stream, Db* db) {
-	Cos* temp = malloc(sizeof(Cos));
+void cus_Fread(Cus* cus, FILE* stream, Db* db) {
+	Cus* temp = malloc(sizeof(Cus));
 	/*set the first account to be an empty account*/
 	AccRec* accRec = malloc(sizeof(AccRec));
 	accRec->acc = 0;
 	accRec->AccRecLast = NULL;
 	accRec->AccRecNext = NULL;
-	cos->accList = accRec;
+	cus->accList = accRec;
 	/*read the information and assign*/
-	fread(temp, sizeof(Cos), 1, stream);
-	cos->CosLast = NULL;
-	cos->CosNext = NULL;
-	strcpy(cos->ID, temp->ID);
-	strcpy(cos->name, temp->name);
-	strcpy(cos->address, temp->address);
-	strcpy(cos->telephone, temp->telephone);
+	fread(temp, sizeof(Cus), 1, stream);
+	cus->CusLast = NULL;
+	cus->CusNext = NULL;
+	strcpy(cus->ID, temp->ID);
+	strcpy(cus->name, temp->name);
+	strcpy(cus->address, temp->address);
+	strcpy(cus->telephone, temp->telephone);
 	/*check it is the last empty customer record in the file*/
 	if (strcmp(temp->ID, "") == 0) {
-		cos->accList = NULL;
+		cus->accList = NULL;
 		free(accRec);
 	}
 	else {
@@ -681,24 +682,24 @@ void cos_Fread(Cos* cos, FILE* stream, Db* db) {
 			else {
 				buffer->AccRecLast = NULL;
 				buffer->AccRecNext = NULL;
-				cos_LinkAccRec(cos, buffer);
+				cus_LinkAccRec(cus, buffer);
 				acc_Fread(db, buffer->acc);
 			}
 		}
 	}
 }
 
-void cos_Print(Cos* cos, int mode, Db* db) {
+void cus_Print(Cus* cus, int mode, Db* db) {
 	if (mode < 0) {
 		return;
 	}
-	printf("Name: %s\n", cos->name);
-	printf("ID  : %s\n", cos->ID);
-	printf("Tel : %s\n", cos->telephone);
-	printf("Add : %s\n", cos->address);
+	printf("Name: %s\n", cus->name);
+	printf("ID  : %s\n", cus->ID);
+	printf("Tel : %s\n", cus->telephone);
+	printf("Add : %s\n", cus->address);
 	/*mode > 0 means more information about accounts should be presented*/
 	if (mode > 0) {
-		AccRec* buffer = cos->accList;
+		AccRec* buffer = cus->accList;
 		Acc* acc;
 		if (buffer->AccRecNext == NULL) {
 			puts("No account.");
@@ -714,14 +715,14 @@ void cos_Print(Cos* cos, int mode, Db* db) {
 }
 
 void db_Print(Db* db, int mode) {
-	Cos* buffer = db->cosList;
-	if (buffer->CosNext == NULL) {
+	Cus* buffer = db->cusList;
+	if (buffer->CusNext == NULL) {
 		puts("No record");
 	}
 	else {
-		while (buffer->CosNext != NULL) {
-			buffer = buffer->CosNext;
-			cos_Print(buffer, mode - 1, db);
+		while (buffer->CusNext != NULL) {
+			buffer = buffer->CusNext;
+			cus_Print(buffer, mode - 1, db);
 			puts("");
 		}
 		puts("Print finished");
@@ -729,7 +730,7 @@ void db_Print(Db* db, int mode) {
 }
 
 void db_Free(Db* db) {
-	Cos* bufferC = db->cosList;
+	Cus* bufferC = db->cusList;
 	Acc* bufferA = db->accList;
 	/*send information to ask the thread to terminate*/
 	db->SO_State = 2;
@@ -738,13 +739,13 @@ void db_Free(Db* db) {
 		Sleep(10);
 	}
 	/*get to the last element*/
-	while (bufferC->CosNext != NULL) {
-		bufferC = bufferC->CosNext;
+	while (bufferC->CusNext != NULL) {
+		bufferC = bufferC->CusNext;
 	}
-	/*free all costomers*/
-	while (bufferC->CosLast != NULL) {
-		bufferC = bufferC->CosLast;
-		cos_Free(bufferC->CosNext);
+	/*free all customers*/
+	while (bufferC->CusLast != NULL) {
+		bufferC = bufferC->CusLast;
+		cus_Free(bufferC->CusNext);
 	}
 	/*free the last element*/
 	free(bufferC);
@@ -752,7 +753,7 @@ void db_Free(Db* db) {
 	while (bufferA->AccNext != NULL) {
 		bufferA = bufferA->AccNext;
 	}
-	/*free all costomers*/
+	/*free all customers*/
 	while (bufferA->AccLast != NULL) {
 		bufferA = bufferA->AccLast;
 		acc_Free(bufferA->AccNext);
@@ -762,8 +763,8 @@ void db_Free(Db* db) {
 }
 
 void db_Fwrite(Db* db) {
-	Cos* buffer = db->cosList;
-	Cos empty = { NULL, "", NULL, NULL, "", "", "" };
+	Cus* buffer = db->cusList;
+	Cus empty = { NULL, "", NULL, NULL, "", "", "" };
 	FILE* file = fopen(".\\data\\information.db", "r");
 	char ch;
 	/*check if the file is being used by other thread*/
@@ -781,27 +782,27 @@ void db_Fwrite(Db* db) {
 	fclose(file);
 	/*clear the file and write information*/
 	file = fopen(".\\data\\information.db", "w+");
-	cos_Fwrite(buffer, file, db);
-	while (buffer->CosNext != NULL) {
-		buffer = buffer->CosNext;
-		cos_Fwrite(buffer, file, db);
+	cus_Fwrite(buffer, file, db);
+	while (buffer->CusNext != NULL) {
+		buffer = buffer->CusNext;
+		cus_Fwrite(buffer, file, db);
 	}
-	cos_Fwrite(&empty, file, db);
+	cus_Fwrite(&empty, file, db);
 	/*print the final mark for other thread to check*/
 	fprintf(file, "%d", -1);
 	fclose(file);
 }
 
-void cos_Fwrite(Cos* cos, FILE* stream, Db* db) {
+void cus_Fwrite(Cus* cus, FILE* stream, Db* db) {
 	/*check if it is an empty customer*/
-	if (cos->accList == NULL) {
-		fwrite(cos, sizeof(Cos), 1, stream);
+	if (cus->accList == NULL) {
+		fwrite(cus, sizeof(Cus), 1, stream);
 	}
 	else {
-		AccRec* index = cos->accList;
+		AccRec* index = cus->accList;
 		AccRec empty = { 0, NULL, NULL };
 		Acc* acc;
-		fwrite(cos, sizeof(Cos), 1, stream);
+		fwrite(cus, sizeof(Cus), 1, stream);
 		/*write all the account records*/
 		fwrite(index, sizeof(AccRec), 1, stream);
 		while (index->AccRecNext != NULL) {
@@ -815,10 +816,10 @@ void cos_Fwrite(Cos* cos, FILE* stream, Db* db) {
 	}
 }
 
-Cos* db_GetCos(Db* db, char ID[]) {
-	Cos* index = db->cosList;
-	while (index->CosNext != NULL) {
-		index = index->CosNext;
+Cus* db_GetCus(Db* db, char ID[]) {
+	Cus* index = db->cusList;
+	while (index->CusNext != NULL) {
+		index = index->CusNext;
 		if (strcmp(index->ID, ID) == 0) {
 			return index;
 		}
@@ -836,7 +837,7 @@ void utl_CheckString(char str[]) {
 	}
 }
 
-Acc* db_AddAcc(Db* db, int PIN, Cos* cos) {
+Acc* db_AddAcc(Db* db, int PIN, Cus* cus) {
 	long temp;
 	Acc* test;
 	Acc* buffer = malloc(sizeof(Acc));
@@ -873,9 +874,9 @@ Acc* db_AddAcc(Db* db, int PIN, Cos* cos) {
 	buffer->accountNumber = temp;
 	buffer->balance = 0;
 	strcpy(buffer->ownerID, "");
-	strcpy(buffer->ownerID, cos->ID);
+	strcpy(buffer->ownerID, cus->ID);
 	db_LinkAcc(db, buffer);
-	cos_AddAcc(cos, buffer->accountNumber);
+	cus_AddAcc(cus, buffer->accountNumber);
 	/*update file content*/
 	db_Fwrite(db);
 	acc_Fwrite(buffer);
@@ -939,7 +940,7 @@ void acc_Fwrite(Acc* acc) {
 	fclose(file);
 }
 
-void cos_AddAcc(Cos* dest, long accNum) {
+void cus_AddAcc(Cus* dest, long accNum) {
 	AccRec* accRec = malloc(sizeof(AccRec));
 	AccRec* buffer = dest->accList;
 	/*initialize account record*/
@@ -961,7 +962,7 @@ void acc_Print(Acc* acc, int mode) {
 	}
 	printf("Acc Num : %ld\n", acc->accountNumber);
 	printf("Balance : %f\n", acc->balance);
-	printf("Costomer: %s\n", acc->ownerID);
+	printf("Customer: %s\n", acc->ownerID);
 	printf("PIN     : %06d\n", acc->PIN);
 	printf("State   : %d\n", acc->state);
 	/*check if further information of operation and stand order record is needed*/
@@ -1185,11 +1186,11 @@ char* utl_timeSprintf(char buffer[], time_t time) {
 	return buffer;
 }
 
-float cos_GetAvg(Cos* cos, Db* db) {
+float cus_GetAvg(Cus* cus, Db* db) {
 	int i = 0;
 	float total = 0;
 	float tempf;
-	AccRec* index = cos->accList;
+	AccRec* index = cus->accList;
 	Acc* temp;
 	/*check if there have records*/
 	if (index->AccRecNext == NULL) {
@@ -1237,8 +1238,8 @@ void acc_Free(Acc* acc) {
 	free(acc);
 }
 
-void cos_Free(Cos* cos) {
-	AccRec* buffer = cos->accList;
+void cus_Free(Cus* cus) {
+	AccRec* buffer = cus->accList;
 	/*move to the last element*/
 	while (buffer->AccRecNext != NULL) {
 		buffer = buffer->AccRecNext;
@@ -1251,7 +1252,7 @@ void cos_Free(Cos* cos) {
 	/*free the last element*/
 	free(buffer);
 	/*free the customer*/
-	free(cos);
+	free(cus);
 }
 
 void acc_AddSORec(Acc* acc, long interval, long duration, float amount, long dest) {
@@ -1359,7 +1360,7 @@ void db_SOCheckInit(void* _db) {
 	}
 	/*privide information to main thread before termination*/
 	db->SO_State = 3;
-	return;
+	_endthread();
 }
 
 void acc_Freeze(Acc* acc) {
