@@ -480,6 +480,16 @@ function:
 void acc_unFreeze(Acc* acc);
 
 /********************************************************************************
+input:
+- char str[]: string to check (NO SHORTER THAN 19 chars)
+output:
+- int: 0 when incorrect, 1 when correct
+function:
+- check if the string is in format of chinese ID number
+********************************************************************************/
+int utl_checkID(char str[]);
+
+/********************************************************************************
 =================================================================================
 =================================================================================
 ==================================Sample code====================================
@@ -1371,4 +1381,17 @@ void acc_Freeze(Acc* acc) {
 void acc_unFreeze(Acc* acc) {
 	acc->state = 1;
 	acc_AddOPRec(acc, 0, "", 7);
+}
+
+int utl_checkID(char str[]) {
+	int i;
+	for (i = 0; i < 17; i++) {
+		if ((str[i] - '0') > 9 || (str[i] - '0') < 0) {
+			return 0;
+		}
+	}
+	if (str[17] != 'X' && ((str[17] - '0') > 9 || (str[17] - '0') < 0)) {
+		return 0;
+	}
+	return 1;
 }
