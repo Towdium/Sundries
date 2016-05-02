@@ -19,7 +19,7 @@
 	ID number, email, recent 6 marks and the average grade.
 @Constraint:
 	The student's family name and given name is set to be no more than
-	19 characters and email address is set to be no more than 39 
+	19 characters and email address is set to be no more than 39
 	characters. The ID number is set to be 7 numbers intendedly.
 @Remarks:
 	This program save all students in linked list, the first element
@@ -183,7 +183,7 @@ input:
 output:
 	Database: the generated database
 function:
-	Ask the user to enter a filename 
+	Ask the user to enter a filename
 	and create a new database.
 	When there is already one file with this name,
 	call function to deal with it.
@@ -222,7 +222,7 @@ input:
 output:
 	Database: the generated database
 function:
-	Ask the user to enter a filename 
+	Ask the user to enter a filename
 	and open the database.
 	When there is no file with this name,
 	call fcunction to deal with it.
@@ -666,7 +666,7 @@ void databaseSave(Database* db) {
 name:
 	checkNum
 input:
-	char str[]: the strying to check 
+	char str[]: the strying to check
 	int length: the required length of the number
 output:
 	int: 1 when meets require, 0 when not
@@ -694,7 +694,7 @@ int checkNum(char str[], int length) {
 name:
 	databasePrint
 input:
-	Database* db: 
+	Database* db:
 output:
 	void
 function:
@@ -861,7 +861,7 @@ name:
 input:
 	void
 output:
-	Student*: pointer to the Student structure generated 
+	Student*: pointer to the Student structure generated
 function:
 	Call some memory and create a Student structure.
 	Then initialize it.

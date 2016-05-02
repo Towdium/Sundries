@@ -1,0 +1,525 @@
+1405096_5.c:56:2: error: conflicting declaration 'typedef struct StudentStrt Student'
+ }Student;
+  ^
+1405096_5.c:54:9: note: previous declaration as 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c: In function 'Database databaseNew()':
+1405096_5.c:213:23: error: invalid use of incomplete type 'struct Student'
+  strcpy(db.listStudent->email, fileName);
+                       ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c: In function 'Database databaseErrorExist(char*)':
+1405096_5.c:351:26: error: invalid use of incomplete type 'struct Student'
+   strcpy((db.listStudent)->email, filename);
+                          ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c: In function 'Database databaseLoad(char*)':
+1405096_5.c:415:23: error: invalid use of incomplete type 'struct Student'
+  strcpy(db.listStudent->email, filename);
+                       ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:419:50: error: invalid application of 'sizeof' to incomplete type 'Student'
+   Student* temp = (Student*)malloc(sizeof(Student));
+                                                  ^
+1405096_5.c:421:29: error: invalid application of 'sizeof' to incomplete type 'Student'
+   fread(temp, sizeof(Student), 1, file);
+                             ^
+1405096_5.c:422:7: error: invalid use of incomplete type 'struct Student'
+   temp->stdFormer = NULL;
+       ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:423:7: error: invalid use of incomplete type 'struct Student'
+   temp->stdLatter = NULL;
+       ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:424:34: error: invalid use of incomplete type 'struct Student'
+   listGetPos(db.listStudent, temp->numberID, &pos);
+                                  ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c: In function 'Database databaseErrorNotfound(char*)':
+1405096_5.c:471:24: error: invalid use of incomplete type 'struct Student'
+   strcpy(db.listStudent->email, filename);
+                        ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c: In function 'void elementInsert(Student*, Student*)':
+1405096_5.c:501:17: error: invalid use of incomplete type 'struct Student'
+  if (elementDest->stdLatter == NULL) {
+                 ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:502:14: error: invalid use of incomplete type 'struct Student'
+   elementDest->stdLatter = elementToInsert;
+              ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:503:18: error: invalid use of incomplete type 'struct Student'
+   elementToInsert->stdFormer = elementDest;
+                  ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:507:21: error: invalid use of incomplete type 'struct Student'
+   temp = elementDest->stdLatter;
+                     ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:508:14: error: invalid use of incomplete type 'struct Student'
+   elementDest->stdLatter = elementToInsert;
+              ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:509:7: error: invalid use of incomplete type 'struct Student'
+   temp->stdFormer = elementToInsert;
+       ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:510:18: error: invalid use of incomplete type 'struct Student'
+   elementToInsert->stdFormer = elementDest;
+                  ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:511:18: error: invalid use of incomplete type 'struct Student'
+   elementToInsert->stdLatter = temp;
+                  ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c: In function 'int listGetPos(Student*, int, Student**)':
+1405096_5.c:541:15: error: invalid use of incomplete type 'struct Student'
+  while (pIndex->numberID < numberID && pIndex->stdLatter != NULL) {
+               ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:541:46: error: invalid use of incomplete type 'struct Student'
+  while (pIndex->numberID < numberID && pIndex->stdLatter != NULL) {
+                                              ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:542:18: error: invalid use of incomplete type 'struct Student'
+   pIndex = pIndex->stdLatter;
+                  ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:545:12: error: invalid use of incomplete type 'struct Student'
+  if (pIndex->numberID == numberID) {
+            ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:550:17: error: invalid use of incomplete type 'struct Student'
+  else if (pIndex->numberID > numberID) {
+                 ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:551:18: error: invalid use of incomplete type 'struct Student'
+   pIndex = pIndex->stdFormer;
+                  ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c: In function 'void databaseAddElement(Database*)':
+1405096_5.c:588:5: error: invalid use of incomplete type 'struct Student'
+  stu->numberID = atoi(numberID);
+     ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:590:45: error: invalid use of incomplete type 'struct Student'
+  duplicate = listGetPos(db->listStudent, stu->numberID, &buffer);
+                                             ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:602:6: error: invalid use of incomplete type 'struct Student'
+   stu->numberID = atoi(numberID);
+      ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:603:46: error: invalid use of incomplete type 'struct Student'
+   duplicate = listGetPos(db->listStudent, stu->numberID, &buffer);
+                                              ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:610:11: error: invalid use of incomplete type 'struct Student'
+  fgets(stu->nameFamily, 20, stdin);
+           ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:611:5: error: invalid use of incomplete type 'struct Student'
+  stu->nameFamily[strlen(stu->nameFamily) - 1] = 0;
+     ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:611:28: error: invalid use of incomplete type 'struct Student'
+  stu->nameFamily[strlen(stu->nameFamily) - 1] = 0;
+                            ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:615:11: error: invalid use of incomplete type 'struct Student'
+  fgets(stu->nameGiven, 20, stdin);
+           ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:616:5: error: invalid use of incomplete type 'struct Student'
+  stu->nameGiven[strlen(stu->nameGiven) - 1] = 0;
+     ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:616:27: error: invalid use of incomplete type 'struct Student'
+  stu->nameGiven[strlen(stu->nameGiven) - 1] = 0;
+                           ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:620:11: error: invalid use of incomplete type 'struct Student'
+  fgets(stu->email, 40, stdin);
+           ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:621:5: error: invalid use of incomplete type 'struct Student'
+  stu->email[strlen(stu->email) - 1] = 0;
+     ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:621:23: error: invalid use of incomplete type 'struct Student'
+  stu->email[strlen(stu->email) - 1] = 0;
+                       ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:624:5: error: invalid use of incomplete type 'struct Student'
+  stu->grade1 = markInput();
+     ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:626:5: error: invalid use of incomplete type 'struct Student'
+  stu->grade2 = markInput();
+     ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:628:5: error: invalid use of incomplete type 'struct Student'
+  stu->grade3 = markInput();
+     ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:630:5: error: invalid use of incomplete type 'struct Student'
+  stu->grade4 = markInput();
+     ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:632:5: error: invalid use of incomplete type 'struct Student'
+  stu->grade5 = markInput();
+     ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:634:5: error: invalid use of incomplete type 'struct Student'
+  stu->grade6 = markInput();
+     ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:636:5: error: invalid use of incomplete type 'struct Student'
+  stu->gradeAvg = (stu->grade1 + stu->grade2 + stu->grade3 + stu->grade4 + stu->grade5 + stu->grade6) / 6;
+     ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:636:22: error: invalid use of incomplete type 'struct Student'
+  stu->gradeAvg = (stu->grade1 + stu->grade2 + stu->grade3 + stu->grade4 + stu->grade5 + stu->grade6) / 6;
+                      ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:636:36: error: invalid use of incomplete type 'struct Student'
+  stu->gradeAvg = (stu->grade1 + stu->grade2 + stu->grade3 + stu->grade4 + stu->grade5 + stu->grade6) / 6;
+                                    ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:636:50: error: invalid use of incomplete type 'struct Student'
+  stu->gradeAvg = (stu->grade1 + stu->grade2 + stu->grade3 + stu->grade4 + stu->grade5 + stu->grade6) / 6;
+                                                  ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:636:64: error: invalid use of incomplete type 'struct Student'
+  stu->gradeAvg = (stu->grade1 + stu->grade2 + stu->grade3 + stu->grade4 + stu->grade5 + stu->grade6) / 6;
+                                                                ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:636:78: error: invalid use of incomplete type 'struct Student'
+  stu->gradeAvg = (stu->grade1 + stu->grade2 + stu->grade3 + stu->grade4 + stu->grade5 + stu->grade6) / 6;
+                                                                              ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:636:92: error: invalid use of incomplete type 'struct Student'
+  stu->gradeAvg = (stu->grade1 + stu->grade2 + stu->grade3 + stu->grade4 + stu->grade5 + stu->grade6) / 6;
+                                                                                            ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c: In function 'void databaseSave(Database*)':
+1405096_5.c:656:23: error: invalid use of incomplete type 'struct Student'
+  fopen(db->listStudent->email, "wb+");
+                       ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:659:12: error: invalid use of incomplete type 'struct Student'
+  while (stu->stdLatter != NULL) {
+            ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:660:12: error: invalid use of incomplete type 'struct Student'
+   stu = stu->stdLatter;
+            ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:661:29: error: invalid application of 'sizeof' to incomplete type 'Student'
+   fwrite(stu, sizeof(Student), 1, db->fileStudent);
+                             ^
+1405096_5.c: In function 'void databasePrint(Database*)':
+1405096_5.c:712:9: error: invalid use of incomplete type 'struct Student'
+  if (stu->stdLatter != NULL) {
+         ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:713:12: error: invalid use of incomplete type 'struct Student'
+   stu = stu->stdLatter;
+            ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:720:12: error: invalid use of incomplete type 'struct Student'
+  while (stu->stdLatter != NULL) {
+            ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:722:12: error: invalid use of incomplete type 'struct Student'
+   stu = stu->stdLatter;
+            ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c: In function 'void elementPrint(Student*)':
+1405096_5.c:742:33: error: invalid use of incomplete type 'struct Student'
+  printf("\tStudent %07d:\n", stu->numberID);
+                                 ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:743:50: error: invalid use of incomplete type 'struct Student'
+  printf("\t   Name:                %s %s;\n", stu->nameGiven, stu->nameFamily);
+                                                  ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:743:66: error: invalid use of incomplete type 'struct Student'
+  printf("\t   Name:                %s %s;\n", stu->nameGiven, stu->nameFamily);
+                                                                  ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:744:46: error: invalid use of incomplete type 'struct Student'
+  printf("\t   Email:               %s\n", stu->email);
+                                              ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:745:67: error: invalid use of incomplete type 'struct Student'
+  printf("\t   Recent 6 grades:     %d; %d; %d; %d; %d; %d;\n", stu->grade1, stu->grade2, stu->grade3, stu->grade4, stu->grade5, stu->grade6);
+                                                                   ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:745:80: error: invalid use of incomplete type 'struct Student'
+  printf("\t   Recent 6 grades:     %d; %d; %d; %d; %d; %d;\n", stu->grade1, stu->grade2, stu->grade3, stu->grade4, stu->grade5, stu->grade6);
+                                                                                ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:745:93: error: invalid use of incomplete type 'struct Student'
+  printf("\t   Recent 6 grades:     %d; %d; %d; %d; %d; %d;\n", stu->grade1, stu->grade2, stu->grade3, stu->grade4, stu->grade5, stu->grade6);
+                                                                                             ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:745:106: error: invalid use of incomplete type 'struct Student'
+  printf("\t   Recent 6 grades:     %d; %d; %d; %d; %d; %d;\n", stu->grade1, stu->grade2, stu->grade3, stu->grade4, stu->grade5, stu->grade6);
+                                                                                                          ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:745:119: error: invalid use of incomplete type 'struct Student'
+  printf("\t   Recent 6 grades:     %d; %d; %d; %d; %d; %d;\n", stu->grade1, stu->grade2, stu->grade3, stu->grade4, stu->grade5, stu->grade6);
+                                                                                                                       ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:745:132: error: invalid use of incomplete type 'struct Student'
+  printf("\t   Recent 6 grades:     %d; %d; %d; %d; %d; %d;\n", stu->grade1, stu->grade2, stu->grade3, stu->grade4, stu->grade5, stu->grade6);
+                                                                                                                                    ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:746:49: error: invalid use of incomplete type 'struct Student'
+  printf("\t   Average of 6 grades: %.2f;\n", stu->gradeAvg);
+                                                 ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c: In function 'void listFree(Student*)':
+1405096_5.c:845:14: error: invalid use of incomplete type 'struct Student'
+  while ( temp->stdLatter != NULL) {
+              ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:846:14: error: invalid use of incomplete type 'struct Student'
+   temp = temp->stdLatter;
+              ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:850:13: error: invalid use of incomplete type 'struct Student'
+  while (temp->stdFormer != NULL) {
+             ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:851:14: error: invalid use of incomplete type 'struct Student'
+   temp = temp->stdFormer;
+              ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:852:12: error: invalid use of incomplete type 'struct Student'
+   free(temp->stdLatter);
+            ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c: In function 'Student* elementNew()':
+1405096_5.c:871:12: error: invalid use of incomplete type 'struct Student'
+  strcat(stu->email, "");
+            ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:872:12: error: invalid use of incomplete type 'struct Student'
+  strcat(stu->nameFamily, "");
+            ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:873:12: error: invalid use of incomplete type 'struct Student'
+  strcat(stu->nameGiven, "");
+            ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:874:5: error: invalid use of incomplete type 'struct Student'
+  stu->grade1 = 0;
+     ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:875:5: error: invalid use of incomplete type 'struct Student'
+  stu->grade2 = 0;
+     ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:876:5: error: invalid use of incomplete type 'struct Student'
+  stu->grade3 = 0;
+     ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:877:5: error: invalid use of incomplete type 'struct Student'
+  stu->grade4 = 0;
+     ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:878:5: error: invalid use of incomplete type 'struct Student'
+  stu->grade5 = 0;
+     ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:879:5: error: invalid use of incomplete type 'struct Student'
+  stu->grade6 = 0;
+     ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:880:5: error: invalid use of incomplete type 'struct Student'
+  stu->gradeAvg = 0;
+     ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:881:5: error: invalid use of incomplete type 'struct Student'
+  stu->numberID = -1;
+     ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:882:5: error: invalid use of incomplete type 'struct Student'
+  stu->stdFormer = NULL;
+     ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
+1405096_5.c:883:5: error: invalid use of incomplete type 'struct Student'
+  stu->stdLatter = NULL;
+     ^
+1405096_5.c:54:9: error: forward declaration of 'struct Student'
+  struct Student* stdFormer;
+         ^
